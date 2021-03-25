@@ -1,0 +1,12 @@
+nav {
+  padding: 10px;
+  border-bottom: 1px solid #777;
+}
+
+.navbar-brand {
+  padding-left: 10px;
+}
+
+#settings {
+  margin: 8pt;
+}

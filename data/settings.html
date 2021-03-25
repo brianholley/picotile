@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Picotile</title>
+
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/jquery.minicolors.css">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <nav class="nav nav-pills">
+    <a class="navbar-brand">Picotile</a>
+    <a class="nav-link" href="/">Live</a>
+    <a class="nav-link active" aria-current="page" href="settings.html">Settings</a>
+  </nav>
+
+  <div id="settings">
+    <div class="form-group mb-3 row">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-8">
+      
+      <label class="form-label">Wifi settings</label>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="ssid-label">Network SSID</span>
+        <input type="text" class="form-control" id="ssid">
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="password-label">Password</span>
+        <input type="password" class="form-control" id="password">
+      </div>
+    
+      <div class="form-group mb-3 row">    
+        <hr />
+      </div>
+      
+      <div class="form-group mb-3 row">    
+        <label class="form-label col-sm-11">Tile settings</label>
+      </div>
+      
+      <div class="form-group mb-3 row">
+        <label class="col-sm-2 control-label" for="sensorSwitch">On/Off</label>
+        <div class="col-sm-1 form-switch">
+          <input class="form-check-input" type="checkbox" id="sensorSwitch" checked>
+        </div>
+      </div>
+
+      <div class="form-group mb-3 row">
+        <label class="col-sm-2 control-label" for="sensorSwitch">Capacitive sensor</label>
+        <div class="col-sm-1 form-switch">
+          <input class="form-check-input" type="checkbox" id="sensorSwitch" checked>
+        </div>
+      </div>
+
+      <div class="form-group mb-3 row">
+        <label class="col-sm-2 control-label">Brightness</label>
+        <div class="col-sm-2">
+          <input class="form-control input" type="number" step="1" min="0" max="255" value="128" />
+        </div>
+        <div class="col-sm-8">
+          <input class="form-range" type="range" step="1" min="0" max="255" value="128" />
+        </div>
+      </div>
+
+      <div class="form-group mb-3 row">
+        <label class="col-sm-2 control-label">Mode</label>
+        <div class="col-sm-10">
+          <select class="form-select">
+            <option>Manual</option>
+            <option>Solid color</option>
+            <option>Chasing lights</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TODO: Convert these to canvases with gradients -->
+      <div class="form-group mb-3 row">
+        <label class="col-sm-2 control-label color-label">Included palettes</label>
+        <div class="col-sm-8">
+          <p>
+            <input class="form-check-input" type="checkbox" id="coolPalette" checked>
+            <label class="form-check-label" for="coolPalette">
+              <button type="button" class="btn btn-color" style="background: #0080FF;" title="Azure">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #0000FF;" title="Blue">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #8000FF;" title="Violet">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #FFFFFF;" title="White">&nbsp;</button>
+            </label>
+          </p>
+          <p>
+            <input class="form-check-input" type="checkbox" id="warmPalette" checked>
+            <label class="form-check-label" for="warmPalette">
+              <button type="button" class="btn btn-color" style="background: #FF0000;" title="Red">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #FF8000;" title="Orange">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #FFFF00;" title="Yellow">&nbsp;</button>          
+              <button type="button" class="btn btn-color" style="background: #FFFFFF;" title="White">&nbsp;</button>
+            </label>
+          </p>
+          <p>
+            <input class="form-check-input" type="checkbox" id="pridePalette" checked>
+            <label class="form-check-label" for="pridePalette">
+              <button type="button" class="btn btn-color" style="background: #FF0000;" title="Red">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #FF8000;" title="Orange">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #FFFF00;" title="Yellow">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #00FF00;" title="Green">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #0080FF;" title="Azure">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #0000FF;" title="Blue">&nbsp;</button>
+              <button type="button" class="btn btn-color" style="background: #8000FF;" title="Violet">&nbsp;</button>
+            </label>
+          </p>
+
+        </div>
+
+        <div class="form-group mb-3 row">    
+          <hr />
+        </div>
+  
+        <div class="form-group mb-3 row">    
+          <label class="form-label col-sm-11">Site settings</label>
+        </div>
+        
+        <div class="form-group mb-3 row">
+          <label class="col-sm-2 control-label" for="sensorSwitch">Dark Mode</label>
+          <div class="col-sm-1 form-switch">
+            <input class="form-check-input" type="checkbox" id="sensorSwitch">
+          </div>
+        </div>  
+        
+      </div>
+      <div class="col-sm-2"></div>
+    </div>
+  </div>
+
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="jquery.minicolors.min.js"></script>
+  
+  <script src="js/app.js"></script>
+
+</body>
+
+</html>
