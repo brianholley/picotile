@@ -15,15 +15,30 @@
 //  -  /--/--/--/--/--/--/--/
 //
 //  z     /\------/
-//       /  \ 2  /
-//      / 1  \  /
+//       /  \ 1  /
+//      / 0  \  /
 //     /------\/
-let renderTile = (canvas, center, orientation, color) => {
-  let rad = 50
+let renderTileField = (canvas, field) => {
+  for (let tile of field) {
+    let pos = tileToCanvasPos(tile)
+    let orientation = (Math.PI / 2) + ((1 - tile.pos.z) * Math.PI)
+    switch (tile.type) {
+      case 'control':
+        renderControlTile(canvas, pos, orientation)
+        break
+      case 'light':
+        renderLightTile(canvas, pos, orientation, tile.color)
+        break
+    }
+  }
+}
+
+const rad = 50
+
+let renderLightTile = (canvas, center, orientation, color) => {
   let rad2 = rad - 5
 
-  // TBD: orientatin -> angle in rad
-  let theta = Math.PI / 2
+  let theta = orientation
 
   var ctx = canvas.getContext('2d')
   ctx.fillStyle = '#000'
@@ -42,11 +57,9 @@ let renderTile = (canvas, center, orientation, color) => {
 }
 
 let renderControlTile = (canvas, center, orientation) => {
-  let rad = 50
   let rad2 = rad - 25
 
-  // TBD: orientatin -> angle in rad
-  let theta = Math.PI / 2
+  let theta = orientation
 
   var ctx = canvas.getContext('2d')
   ctx.fillStyle = '#000'
@@ -64,13 +77,21 @@ let renderControlTile = (canvas, center, orientation) => {
   ctx.fill()
 }
 
+// TODO: Insert more helpful geometry diagram
 let tileToCanvasPos = (tile) => {
-  return {
-    x: tile.x,
-    y: tile.y
-  }
+  let base = rad * Math.cos(Math.PI / 6)
+  let h = rad * Math.sin(Math.PI / 6)
+
+  const x = rad + 2 * base * tile.pos.x - base * tile.pos.y + base * tile.pos.z
+  const y = rad + (rad + h) * tile.pos.y - (rad - h) * tile.pos.z
+  console.log(`${tile.pos.x},${tile.pos.y},${tile.pos.z} => ${x}, ${y}`)
+  return {x, y}
 }
 
-let renderTileField = (field) => {
-
+let canvasPosToTile = (pos) => {
+  return {
+    x: 0,
+    y: 0,
+    z: 0
+  }
 }
