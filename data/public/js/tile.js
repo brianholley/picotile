@@ -95,3 +95,9 @@ let canvasPosToTile = (pos) => {
     z: 0
   }
 }
+
+return React.createElement(
+  'button',
+  { onClick: () => this.setState({ liked: true }) },
+  'Like'
+);

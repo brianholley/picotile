@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="css/bootstrap.min.css">
 
   <link rel="stylesheet" href="css/styles.css">
+  
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
 </head>
 
 <body>
@@ -18,10 +21,7 @@
     <a class="nav-link" href="settings.html">Settings</a>
   </nav>
 
-  <canvas id='tiletest' width='300' height='300'></canvas>
-  
-  <script src="js/jquery-3.5.1.min.js"></script>
-  <script src="js/bootstrap.min.js"></script>
+  <!-- <canvas id='tiletest' width='300' height='300'></canvas>
   
   <script>
     let tiletest = $('#tiletest')[0]
@@ -32,9 +32,16 @@
     tiletest.height = window.innerHeight - rc.top
 
     // TODO: refactor, change on resize
+  </script> -->
+
+  <div id="tileroot"></div>
+  <script src="js/tile.js"></script>
+
+  <script>
+  const domContainer = document.querySelector('#tileroot');
+  ReactDOM.render(React.createElement(LikeButton), domContainer);
   </script>
 
-  <script src="js/tile.js"></script>
   <script>
     let tiles = [
       {type: 'control', pos: {x: 4, y: 5, z: 1}}, 
@@ -50,6 +57,6 @@
     renderTileField($('#tiletest')[0], tiles)
   </script>
 
+  <script src="js/bootstrap.min.js"></script>
 </body>
-
 </html>
