@@ -1,3 +1,19 @@
+import React, { useEffect, useRef } from 'react'
+
+const TileField = props => {
+
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    renderTileField(canvas, props.field)
+  }, [])
+  
+  return <canvas ref={canvasRef} width='300' height='300' {...props}/>
+}
+
+export default TileField
+
 // Tile and tile field rendering
 //
 // Tile field looks like a skewed x/y grid. Each grid cell
