@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 import {
   Link,
   Switch,
   Route
-} from "react-router-dom";
-import './styles.css';
+} from "react-router-dom"
+import './styles.css'
 
 let Menu = props => {
   return (
@@ -21,9 +21,9 @@ let Menu = props => {
         </Route>
       </Switch>
     </nav>
-  );
+  )
 }
 
-export default Menu;
+export default Menu
 
   

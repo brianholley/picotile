@@ -2,14 +2,14 @@ import React, { useEffect, useRef } from 'react'
 
 const TileField = props => {
 
-  const canvasRef = useRef(null);
+  const canvasRef = useRef(null)
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    renderTileField(canvas, props.field);
-  }, []);
+    const canvas = canvasRef.current
+    renderTileField(canvas, props.field)
+  }, [])
   
-  return <canvas ref={canvasRef} width='300' height='300' {...props}/>;
+  return <canvas ref={canvasRef} width='300' height='300' {...props}/>
 }
 
 export default TileField

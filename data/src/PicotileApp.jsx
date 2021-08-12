@@ -9,7 +9,7 @@ import './styles.css';
 
 import Menu from './Menu'
 import Settings from './Settings'
-import TileField from './TileField';
+import TileField from './TileField'
 
 const tiles = [
     {type: 'control', pos: {x: 4, y: 5, z: 1}}, 
@@ -20,7 +20,7 @@ const tiles = [
     {type: 'light', index: 0, pos: {x: 3, y: 2, z: 0}, color: '#dd0'},
     {type: 'light', index: 0, pos: {x: 2, y: 2, z: 1}, color: '#d70'},
     {type: 'light', index: 0, pos: {x: 2, y: 2, z: 0}, color: '#c00'},
-  ];
+  ]
 
 let PicotileApp = props => {
     return (
@@ -37,7 +37,7 @@ let PicotileApp = props => {
                 </Switch>
             </div>
         </Router>
-    );
+    )
 }
 
-export default PicotileApp;
+export default PicotileApp

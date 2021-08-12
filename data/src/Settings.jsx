@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react'
 
-import './styles.css';
+import './styles.css'
 
 let Settings = props => {
     return (
@@ -95,31 +95,31 @@ let Settings = props => {
 
 let Palette = props => {
 
-    const canvasRef = useRef(null);
+    const canvasRef = useRef(null)
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        var ctx = canvas.getContext("2d");
+        const canvas = canvasRef.current
+        var ctx = canvas.getContext("2d")
 
-        var gradient = ctx.createLinearGradient(0, 0, props.width, 0);
+        var gradient = ctx.createLinearGradient(0, 0, props.width, 0)
 
-        var offset = 0;
-        var step = 1 / (props.colors.length - 1);
+        var offset = 0
+        var step = 1 / (props.colors.length - 1)
         for (var color of props.colors) {
-            gradient.addColorStop(offset, color);
-            offset += step;
+            gradient.addColorStop(offset, color)
+            offset += step
         }
         
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, props.width, props.height);
-    }, []);
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, props.width, props.height)
+    }, [])
 
     return (
         <p>
             <input className="form-check-input" type="checkbox" id={props.paletteId} checked={props.enabled} />
             <canvas ref={canvasRef} width={props.width} height={props.height}/>
         </p>
-    );
+    )
 }
 
-export default Settings;
+export default Settings
