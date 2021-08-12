@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import './styles.css';
 
@@ -62,43 +62,12 @@ let Settings = props => {
                             </div>
                         </div>
 
-                        {
-                        //<!-- TODO: Convert these to canvases with gradients -->
-                        }
                         <div className="form-group mb-3 row">
                             <label className="col-sm-2 control-label color-label">Included palettes</label>
                             <div className="col-sm-8">
-                                <p>
-                                    <input className="form-check-input" type="checkbox" id="coolPalette" checked />
-                                    <label className="form-check-label" htmlFor="coolPalette">
-                                        <button type="button" className="btn btn-color" style={{background: "#0080FF"}} title="Azure">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#0000FF"}} title="Blue">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#8000FF"}} title="Violet">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#FFFFFF"}} title="White">&nbsp;</button>
-                                    </label>
-                                </p>
-                                <p>
-                                    <input className="form-check-input" type="checkbox" id="warmPalette" checked />
-                                    <label className="form-check-label" htmlFor="warmPalette">
-                                        <button type="button" className="btn btn-color" style={{background: "#FF0000"}} title="Red">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#FF8000"}} title="Orange">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#FFFF00"}} title="Yellow">&nbsp;</button>          
-                                        <button type="button" className="btn btn-color" style={{background: "#FFFFFF"}} title="White">&nbsp;</button>
-                                    </label>
-                                </p>
-                                <p>
-                                    <input className="form-check-input" type="checkbox" id="pridePalette" checked />
-                                    <label className="form-check-label" htmlFor="pridePalette">
-                                        <button type="button" className="btn btn-color" style={{background: "#FF0000"}} title="Red">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#FF8000"}} title="Orange">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#FFFF00"}} title="Yellow">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#00FF00"}} title="Green">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#0080FF"}} title="Azure">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#0000FF"}} title="Blue">&nbsp;</button>
-                                        <button type="button" className="btn btn-color" style={{background: "#8000FF"}} title="Violet">&nbsp;</button>
-                                    </label>
-                                </p>
-
+                                <Palette paletteId="cool" enabled={true} width="200" height="40" colors={["#0080FF", "#0000FF", "#8000FF", "#FFFFFF"]} />
+                                <Palette paletteId="warm" enabled={true} width="200" height="40" colors={["#FF0000", "#FF8000", "#FFFF00", "#FFFFFF"]} />
+                                <Palette paletteId="pride" enabled={true} width="200" height="40" colors={["#FF0000", "#FF8000", "#FFFF00", "#00FF00", "#0080FF", "#0000FF", "#8000FF"]} />
                             </div>
 
                             <div className="form-group mb-3 row">    
@@ -121,6 +90,35 @@ let Settings = props => {
                 </div>
             </div>
         </div>
+    );
+}
+
+let Palette = props => {
+
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        var ctx = canvas.getContext("2d");
+
+        var gradient = ctx.createLinearGradient(0, 0, props.width, 0);
+
+        var offset = 0;
+        var step = 1 / (props.colors.length - 1);
+        for (var color of props.colors) {
+            gradient.addColorStop(offset, color);
+            offset += step;
+        }
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, props.width, props.height);
+    }, []);
+
+    return (
+        <p>
+            <input className="form-check-input" type="checkbox" id={props.paletteId} checked={props.enabled} />
+            <canvas ref={canvasRef} width={props.width} height={props.height}/>
+        </p>
     );
 }
 
