@@ -1,23 +1,50 @@
+#define FASTLED_ESP8266_NODEMCU_PIN_ORDER
 #include <FastLED.h>
+FASTLED_USING_NAMESPACE
 
 #define LEDS_PER_TRI 9
-#define TRIANGLES 2
-#define LED_COUNT (LEDS_PER_TRI * TRIANGLES)
+#define MAX_TRIANGLES 20
+#define LED_COUNT (LEDS_PER_TRI * MAX_TRIANGLES)
 #define DATA_PIN 6
 
+#include "Settings.h"
+#include "WifiCredentials.h"
+#include "Webserver.h"
+
 CRGB leds[LED_COUNT];
-uint8_t hue[TRIANGLES];
+uint8_t hue[MAX_TRIANGLES];
+
+uint8_t triangles = MAX_TRIANGLES;
 
 void setup() {
-  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, LED_COUNT);
+  loadSettings();
 
-  for (uint8_t t=0; t < TRIANGLES; t++) {
+  setupLeds();
+  
+  connectToWifi();
+  setupHttpServer();
+  setupWebsocketServer();
+}
+
+void loop() {
+
+  updateWifi();
+  updateHttpServer();
+  updateWebsocketServer();
+
+  updateLeds();
+}
+
+void setupLeds() {
+  FastLED.addLeds<WS2812B, DATA_PIN, GBR>(leds, LED_COUNT);
+
+  for (uint8_t t=0; t < MAX_TRIANGLES; t++) {
     hue[t] = random8();
   }
 }
 
-void loop() {
-  for (uint8_t t=0; t < TRIANGLES; t++) {
+void updateLeds() {
+  for (uint8_t t=0; t < MAX_TRIANGLES; t++) {
     hue[t]++;
   }
   
