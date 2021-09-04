@@ -96,7 +96,7 @@ void setupHttpServer() {
             webServer.send(400, "application/json", "{ error: \"missing paramter\" }");
             return;
         }
-        if (settings.tileCount + 1 == MAX_TRIANGLES) {            
+        if (settings.tileCount + 1 == MAX_TILES) {            
             webServer.send(400, "application/json", "{ error: \"max tile count reached\" }");
             return;
         }

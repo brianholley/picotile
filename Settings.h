@@ -20,7 +20,7 @@ struct Settings {
 
     // Tile layouts
     uint8_t tileCount;
-    TilePosition tiles[MAX_TRIANGLES];
+    TilePosition tiles[MAX_TILES];
 
     // Brightness
     uint8_t brightness;
@@ -43,17 +43,25 @@ void loadSettings() {
     uint16_t offset = 0;
     settings.version = EEPROM.read(offset++);
 
-    settings.tileCount = EEPROM.read(offset++);
-    for (uint8_t i=0; i < settings.tileCount; i++) {
-        settings.tiles[i].x = EEPROM.read(offset++);
-        settings.tiles[i].y = EEPROM.read(offset++);
-        settings.tiles[i].z = EEPROM.read(offset++);
-        settings.tiles[i].type = EEPROM.read(offset++);
+    if (settings.version == 1) {
+        settings.tileCount = EEPROM.read(offset++);
+        for (uint8_t i=0; i < settings.tileCount; i++) {
+            settings.tiles[i].x = EEPROM.read(offset++);
+            settings.tiles[i].y = EEPROM.read(offset++);
+            settings.tiles[i].z = EEPROM.read(offset++);
+            settings.tiles[i].type = EEPROM.read(offset++);
+        }
+    
+        settings.brightness = EEPROM.read(offset++);
+        settings.speed = EEPROM.read(offset++);
+        settings.mode = EEPROM.read(offset++);
     }
-
-    settings.brightness = EEPROM.read(offset++);
-    settings.speed = EEPROM.read(offset++);
-    settings.mode = EEPROM.read(offset++);
+    else {
+        settings.tileCount = 0;
+        settings.brightness = 255;
+        settings.speed = 255;
+        settings.mode = 0;
+    }
 }
 
 void saveSettings() {
@@ -90,7 +98,7 @@ String tilesToJson() {
     String json = "{";
     json +=
         "version:" + String(settings.version) + "," +
-        "maxTiles:" + String(MAX_TRIANGLES) + "," +
+        "maxTiles:" + String(MAX_TILES) + "," +
         "tiles:[";
     for (uint8_t i = 0; i < settings.tileCount; i++) {
         json += "{";
