@@ -4,6 +4,7 @@
 
 #include "Firefly.h"
 #include "Settings.h"
+#include "Starburst.h"
 #include "WifiCredentials.h"
 #include "Webserver.h"
 
@@ -54,9 +55,9 @@ void loop() {
 void setupLeds() {
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, LED_COUNT);
 
-  Firefly::start();
+  Starburst::start();
 }
 
 void updateLeds() {
-  Firefly::update();
+  Starburst::update();
 }
