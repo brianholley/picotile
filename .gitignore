@@ -2,4 +2,7 @@
 node_modules/
 
 # React
-/data/build/
+/data
+
+# VSCode config
+.vscode/
