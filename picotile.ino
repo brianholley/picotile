@@ -2,7 +2,9 @@
 
 #define DATA_PIN 6
 
+#include "Fire.h"
 #include "Firefly.h"
+#include "Rainbow.h"
 #include "Settings.h"
 #include "Starburst.h"
 #include "WifiCredentials.h"
@@ -55,9 +57,9 @@ void loop() {
 void setupLeds() {
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, LED_COUNT);
 
-  Starburst::start();
+  Fire::start();
 }
 
 void updateLeds() {
-  Starburst::update();
+  Fire::update();
 }
