@@ -1,8 +1,9 @@
 # Node/NPM
 node_modules/
 
-# React
+# React/webapp
 /data
+/webapp/build
 
 # VSCode config
 .vscode/
