@@ -113,6 +113,8 @@ void updateLeds() {
       
       currentPattern = random(PatternCount);
       patterns[currentPattern].start();
+
+      Serial.print("Switching to pattern: "); Serial.println(patterns[currentPattern].name);
     }
   }
   
