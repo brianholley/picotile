@@ -37,6 +37,7 @@ const defaultSettings = {
 let PicotileApp = props => {
 
     const [loaded, setLoaded] = useState(false)
+    const [pattern, setPattern] = useState('Pattern')
     const [tiles, setTiles] = useState(defaultTiles)
     const [settings, setSettings] = useState(defaultSettings)
 
@@ -44,17 +45,29 @@ let PicotileApp = props => {
         let loadAsync = async () => {
             if (!loaded)
             {
+                setLoaded(true)
+
                 let tileQuery = await Api.getTiles();
                 setTiles(tileQuery)
 
                 let settingsQuery = await Api.getSettings()
                 setSettings(settingsQuery)
 
-                setLoaded(true)
+                Api.connect()
+                Api.registerCallback('pattern', message => {
+                    setPattern(message.data)
+                })
+                Api.registerCallback('tileColors', message => {
+                    let updatedTiles = { ...tiles }
+                    for (var tile of message.tiles) {
+                        updatedTiles.tiles[tile.index].color = tile.color
+                    }
+                    setTiles(updatedTiles)
+                })
             }
         }
         loadAsync()
-    }, [tiles, settings])
+    }, [loaded, tiles, settings])
 
     let onChangeSetting = async (newSettings) => {
         let oldSettings = settings
@@ -74,6 +87,7 @@ let PicotileApp = props => {
                 <Menu />
                 <Switch>
                     <Route exact path="/">
+                        <div style={{textAlign: 'center'}}>Current pattern: {pattern}</div>
                         <TileField field={tiles} />
                     </Route>
                     <Route exact path="/settings">

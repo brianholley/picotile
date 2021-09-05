@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import * as Api from './api'
 
 const TileField = props => {
 
@@ -153,7 +154,7 @@ let tilePosToCanvasPos = (tilePos) => {
 
   const x = rad + 2 * base * tilePos.x - base * tilePos.y + base * tilePos.z
   const y = rad + (rad + h) * tilePos.y - (rad - h) * tilePos.z
-  console.log(`${tilePos.x},${tilePos.y},${tilePos.z} => ${x}, ${y}`)
+  //console.log(`${tilePos.x},${tilePos.y},${tilePos.z} => ${x}, ${y}`)
   return {x, y}
 }
 
