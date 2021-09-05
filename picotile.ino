@@ -7,13 +7,41 @@
 #include "Rainbow.h"
 #include "Settings.h"
 #include "Starburst.h"
+#include "Transition.h"
 #include "WifiCredentials.h"
 #include "Webserver.h"
 
 CRGB leds[LED_COUNT];
-uint8_t hue[MAX_TILES];
 
-uint8_t triangles = MAX_TILES;
+enum State {
+  InPattern,
+  InTransition
+} state = InPattern;
+
+const uint16_t TransitionTimeInMsec = 1000;
+const uint16_t MinTimeInPatternInMsec = 15000;
+const uint16_t MaxTimeInPatternInMsec = 60000;
+
+uint16_t tick = 0;
+uint16_t patternTime = 0;
+uint8_t currentPattern = 0;
+
+typedef void (*FnStart)();
+typedef void (*FnUpdate)();
+
+struct Pattern {
+  const char * name;
+  FnStart start;
+  FnUpdate update;
+};
+
+const Pattern patterns[] = {
+  { "Fire", Fire::start, Fire::update },
+  { "Firefly", Firefly::start, Firefly::update },
+  { "Rainbow", Rainbow::start, Rainbow::update },
+  { "Starburst", Starburst::start, Starburst::update },
+};
+const uint8_t PatternCount = sizeof(patterns) / sizeof(patterns[0]);
 
 void setup() {
   
@@ -57,9 +85,36 @@ void loop() {
 void setupLeds() {
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, LED_COUNT);
 
-  Fire::start();
+  patternTime = random(MinTimeInPatternInMsec, MaxTimeInPatternInMsec);
+  currentPattern = random(PatternCount);
+
+  patterns[currentPattern].start();
 }
 
 void updateLeds() {
-  Fire::update();
+  tick += SleepInMsec;
+  if (state == InPattern) {
+    if (tick > patternTime) {
+      state = InTransition;
+      tick = 0;
+
+      Transition::start();
+    }
+    else {
+      patterns[currentPattern].update();
+    }
+  }
+  else if (state == InTransition) {
+    Transition::update();
+  
+    if (tick > TransitionTimeInMsec) {
+      state = InPattern;
+      tick = 0;
+      
+      currentPattern = random(PatternCount);
+      patterns[currentPattern].start();
+    }
+  }
+  
+  delay(SleepInMsec);
 }

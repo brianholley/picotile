@@ -9,8 +9,6 @@ namespace Firefly {
 CRGB nightColor = 0x000008;
 CRGB fireflyColor = 0x506612;
 
-const uint8_t SleepInMsec = 30;
-
 const uint32_t MinFireflyDurationInMsec = 1200;
 const uint32_t MaxFireflyDurationInMsec = 3000;
 const uint32_t MinFireflyDelayInMsec = 500;
@@ -54,7 +52,6 @@ void update() {
         resetFirefly(firefly);
         fill(nightColor);
     }
-    delay(SleepInMsec);
 }
 
 void render(Firefly& ff) {

@@ -6,8 +6,6 @@
 
 namespace Rainbow {
 
-const uint8_t SleepInMsec = 30;
-
 uint8_t hue = 0;
 const uint8_t hsvTileStep = 20;
 
@@ -21,13 +19,11 @@ void start() {
 void update() {
     hue++;
     render();
-   
-    delay(SleepInMsec);
 }
 
 void render() {
     for (uint8_t i=0; i < LED_COUNT; i++) {
-        leds[i] = CHSV(hue + (i % LEDS_PER_TILE) * hsvTileStep, 255, 255);
+        leds[i] = CHSV(hue + (i / LEDS_PER_TILE) * hsvTileStep, 255, 255);
     }
     FastLED.show();
 }

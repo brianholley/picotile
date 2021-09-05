@@ -6,8 +6,6 @@
 
 namespace Fire {
 
-const uint8_t SleepInMsec = 30;
-
 uint8_t heat[LED_COUNT];
 const uint8_t MaxHeat = 200;
 const uint8_t MaxReheat = 10;
@@ -43,7 +41,6 @@ void update() {
     }
     
     render();
-    delay(SleepInMsec);
 }
 
 void render() {

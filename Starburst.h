@@ -6,8 +6,6 @@
 
 namespace Starburst {
 
-const uint8_t SleepInMsec = 30;
-
 // TODO: Fade-in for stars
 
 uint8_t hue[MAX_TILES];
@@ -53,7 +51,6 @@ void update() {
         lastHue = hue[index];
     }
     render();
-    delay(SleepInMsec);
 }
 
 void render() {

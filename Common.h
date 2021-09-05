@@ -14,4 +14,6 @@ FASTLED_USING_NAMESPACE
 
 extern CRGB leds[];
 
+const uint8_t SleepInMsec = 30;
+
 #endif // ifndef __PICOTILE_COMMON__
