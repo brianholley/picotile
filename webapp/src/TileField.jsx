@@ -1,10 +1,20 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+
+// This is the size of the tiles (radius of the bounding circle for the equilateral triangle)
+const rad = 80
 
 const TileField = props => {
 
+  const sizeRef = useRef(null)
   const canvasRef = useRef(null)
+  const [canvasSize, setCanvasSize] = useState({width: 300, height: 600})
 
   useEffect(() => {
+    const parent = sizeRef.current
+    if (parent.clientWidth !== canvasSize.width || parent.clientHeight !== canvasSize.height) {
+      console.log(`${parent.clientWidth} x ${parent.clientHeight}`)
+      setCanvasSize({width: parent.clientWidth, height: parent.clientHeight})
+    }
     const canvas = canvasRef.current  
     var ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -17,7 +27,12 @@ const TileField = props => {
     props.onCanvasClick(tilePos)
   }
   
-  return <canvas ref={canvasRef} width='300' height='600' onClick={clickOnCanvas}/>
+  return (
+    <div ref={sizeRef} style={{ width: '100vh', height: '100vh' }}>
+      <div style={{display: 'flex', height: 'auto', minHeight: '100%', minWidth: '100%'}}>
+        <canvas ref={canvasRef} width={canvasSize.width} height={canvasSize.height} onClick={clickOnCanvas}/>
+      </div>
+    </div>)
 }
 
 export default TileField
@@ -62,13 +77,19 @@ let renderTileField = (canvas, field) => {
 
 let renderTileGridLines = (canvas, color) => {
   // TODO: Figure out bounds from canvasPosToTile once implemented
+  let topLeft = canvasPosToTile({x: 0, y: 0})
+  let topRight = canvasPosToTile({x: canvas.width, y: 0})
+  let bottomLeft = canvasPosToTile({x: 0, y: canvas.height})
+  let bottomRight = canvasPosToTile({x: canvas.width, y: canvas.height})
+
+  const downLeftSpread = Math.max(topRight.x - topLeft.x, bottomLeft.y - topLeft.y)
   var ctx = canvas.getContext('2d')
-  for (let x=0; x < 10; x++) {
+  for (let x=0; x < downLeftSpread * 2; x++) {
     // Down-left
     let orientation = (Math.PI / 2) + ((1 - 0) * Math.PI)
     let theta = orientation
     let center1 = tilePosToCanvasPos({x: x, y: 0, z: 0})
-    let center2 = tilePosToCanvasPos({x: x, y: 10, z: 0})
+    let center2 = tilePosToCanvasPos({x: x, y: downLeftSpread, z: 0})
     
     ctx.strokeStyle = color
     ctx.beginPath()
@@ -77,12 +98,13 @@ let renderTileGridLines = (canvas, color) => {
     ctx.stroke()
   }
 
-  for (let x=-5; x < 5; x++) {
+  const downRightSpread = Math.max(topRight.x - topLeft.x, bottomLeft.y - topLeft.y)
+  for (let x=0; x < downRightSpread * 2; x++) {
     // Down-right
     let orientation = (Math.PI / 2) + ((1 - 1) * Math.PI)
     let theta = orientation
-    let center1 = tilePosToCanvasPos({x: x, y: -1, z: 1})
-    let center2 = tilePosToCanvasPos({x: x+10, y: 9, z: 1})
+    let center1 = tilePosToCanvasPos({x: bottomLeft.x + x - downRightSpread, y: topLeft.y, z: 1})
+    let center2 = tilePosToCanvasPos({x: bottomLeft.x + x, y: topLeft.y + downRightSpread, z: 1})
     
     ctx.strokeStyle = color
     ctx.beginPath()
@@ -91,12 +113,12 @@ let renderTileGridLines = (canvas, color) => {
     ctx.stroke()
   }
 
-  for (let y=0; y < 10; y++) {
+  for (let y=topLeft.y; y < bottomLeft.y; y++) {
     // Horizontal
     let orientation = (Math.PI / 2) + ((1 - 0) * Math.PI)
     let theta = orientation
-    let center1 = tilePosToCanvasPos({x: 0, y: y, z: 0})
-    let center2 = tilePosToCanvasPos({x: 10, y: y, z: 0})
+    let center1 = tilePosToCanvasPos({x: topLeft.x, y: y, z: 0})
+    let center2 = tilePosToCanvasPos({x: bottomRight.x, y: y, z: 0})
     
     ctx.strokeStyle = color
     ctx.beginPath()
@@ -105,8 +127,6 @@ let renderTileGridLines = (canvas, color) => {
     ctx.stroke()
   }
 }
-
-const rad = 50
 
 let renderLightTile = (canvas, center, orientation, color) => {
   let rad2 = rad - 5
