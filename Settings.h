@@ -86,10 +86,10 @@ void saveSettings() {
 String settingsToJson() {
     String json = "{";
     json += 
-        "version:" + String(settings.version) + "," +
-        "brightness:" + String(settings.brightness) + "," +
-        "speed:" + String(settings.speed) + "," +
-        "mode:" + String(settings.mode) +
+        "\"version\":" + String(settings.version) + "," +
+        "\"brightness\":" + String(settings.brightness) + "," +
+        "\"speed\":" + String(settings.speed) + "," +
+        "\"mode\":" + String(settings.mode) +
         "}";
     return json;
 }
@@ -97,17 +97,17 @@ String settingsToJson() {
 String tilesToJson() {
     String json = "{";
     json +=
-        "version:" + String(settings.version) + "," +
-        "maxTiles:" + String(MAX_TILES) + "," +
-        "tiles:[";
+        "\"version\":" + String(settings.version) + "," +
+        "\"maxTiles\":" + String(MAX_TILES) + "," +
+        "\"tiles\":[";
     for (uint8_t i = 0; i < settings.tileCount; i++) {
         json += "{";
-        json += "type:" + String(settings.tiles[i].type) + "," +
-            "pos: {";
+        json += "\"type\":\"" + String(settings.tiles[i].type) + "\"," +
+            "\"pos\": {";
         json += 
-            "x:" + String(settings.tiles[i].x) +
-            "y:" + String(settings.tiles[i].y) +
-            "z:" + String(settings.tiles[i].z) +
+            "\"x\":" + String(settings.tiles[i].x) +
+            "\"y\":" + String(settings.tiles[i].y) +
+            "\"z\":" + String(settings.tiles[i].z) +
             "}}";
         if (i < settings.tileCount - 1) {
             json += ",";
