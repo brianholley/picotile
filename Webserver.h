@@ -193,21 +193,19 @@ void setupHttpServer() {
 }
 
 void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
- switch (type) {
-   case WStype_DISCONNECTED: {
-       IPAddress ip = webSocketsServer.remoteIP(num);
-       Serial.printf("[%u] Disconnected Ip: %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
-       break;
-   }
-
-   case WStype_CONNECTED: {
-       IPAddress ip = webSocketsServer.remoteIP(num);
-       Serial.printf("[%u] Connected Ip: %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
-
-       webSocketsServer.
-       break;
-     }
- }
+    switch (type) {
+        case WStype_DISCONNECTED: {
+            IPAddress ip = webSocketsServer.remoteIP(num);
+            Serial.printf("[%u] Disconnected Ip: %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
+            break;
+        }
+        
+        case WStype_CONNECTED: {
+            IPAddress ip = webSocketsServer.remoteIP(num);
+            Serial.printf("[%u] Connected Ip: %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
+            break;
+        }
+    }
 }
 
 void setupWebsocketServer() {  

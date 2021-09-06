@@ -74,7 +74,7 @@ void logColor(CRGB& rgb) {
 // TODO: Open question - jitter per LED or per tile?
 void jitterBackground() {
     uint8_t bNight = nightColor.b;
-    for (uint8_t i=0; i < LED_COUNT; i++) {
+    for (uint8_t i=0; i < MAX_LEDS; i++) {
         if (i % LEDS_PER_TILE == firefly.tile) {
             // Don't jitter firefly pixels
         }
@@ -139,7 +139,7 @@ void resetFirefly(Firefly& ff) {
 }
 
 void fill(CRGB& c) {
-  for(uint16_t i=0; i < LED_COUNT; i++) {
+  for(uint16_t i=0; i < MAX_LEDS; i++) {
     leds[i] = c;
   }
 }

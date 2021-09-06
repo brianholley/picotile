@@ -22,7 +22,7 @@ void update() {
 }
 
 void render() {
-    for (uint8_t i=0; i < LED_COUNT; i++) {
+    for (uint8_t i=0; i < MAX_LEDS; i++) {
         leds[i] = CHSV(hue + (i / LEDS_PER_TILE) * hsvTileStep, 255, 255);
     }
     FastLED.show();

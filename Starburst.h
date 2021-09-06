@@ -54,7 +54,7 @@ void update() {
 }
 
 void render() {
-    for (uint8_t i=0; i < LED_COUNT; i++) {
+    for (uint8_t i=0; i < MAX_LEDS; i++) {
         uint8_t tile = i / LEDS_PER_TILE;
         leds[i] = CHSV(hue[tile], 255, value[tile]);
     }

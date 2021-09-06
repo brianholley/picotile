@@ -6,21 +6,21 @@
 
 namespace Fire {
 
-uint8_t heat[LED_COUNT];
+uint8_t heat[MAX_LEDS];
 const uint8_t MaxHeat = 200;
 const uint8_t MaxReheat = 10;
 
 void render();
 
 void start() {
-    for (uint8_t i=0; i < LED_COUNT; i++) {
+    for (uint8_t i=0; i < MAX_LEDS; i++) {
         heat[i] = random(MaxHeat);
     }
     render();
 }
 
 void update() {
-    for (uint8_t i=0; i < LED_COUNT; i++) {
+    for (uint8_t i=0; i < MAX_LEDS; i++) {
         if (heat[i] > 0) {
             heat[i]--;
         }
@@ -30,7 +30,7 @@ void update() {
     }
 
     for (uint8_t i=0; i < 3; i++) {
-        uint8_t reheatIndex = random(LED_COUNT);
+        uint8_t reheatIndex = random(MAX_LEDS);
         uint8_t reheat = random(MaxReheat);
         if (heat[reheatIndex] < MaxHeat - reheat) {
           heat[reheatIndex] += reheat;
@@ -44,7 +44,7 @@ void update() {
 }
 
 void render() {
-    for (uint8_t i=0; i < LED_COUNT; i++) {
+    for (uint8_t i=0; i < MAX_LEDS; i++) {
         leds[i] = HeatColor(heat[i]);
     }
     

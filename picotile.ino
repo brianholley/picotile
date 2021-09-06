@@ -11,7 +11,7 @@
 #include "WifiCredentials.h"
 #include "Webserver.h"
 
-CRGB leds[LED_COUNT];
+CRGB leds[MAX_LEDS];
 
 enum State {
   InPattern,
@@ -83,7 +83,7 @@ void loop() {
 }
 
 void setupLeds() {
-  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, LED_COUNT);
+  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, MAX_LEDS);
 
   patternTime = random(MinTimeInPatternInMsec, MaxTimeInPatternInMsec);
   currentPattern = random(PatternCount);

@@ -9,7 +9,8 @@
 #define LIGHT_TILE      0
 #define CONTROL_TILE    1
 
-struct TilePosition {
+struct Tile {
+    uint8_t index;
     uint8_t x, y, z;
     uint8_t type;   // LIGHT_TILE/CONTROL_TILE
 };
@@ -20,7 +21,7 @@ struct Settings {
 
     // Tile layouts
     uint8_t tileCount;
-    TilePosition tiles[MAX_TILES];
+    Tile tiles[MAX_TILES];
 
     // Brightness
     uint8_t brightness;
