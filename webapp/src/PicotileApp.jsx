@@ -130,16 +130,14 @@ let PicotileApp = props => {
                 <Switch>
                     <Route exact path="/">
                         <div style={{textAlign: 'center'}}>Current pattern: {pattern}</div>
-                        <TileField field={tileField} onCanvasClick={onCanvasClick} />
+                        <TileField field={tileField} mode={editMode} onCanvasClick={onCanvasClick} />
                         <div>
                             <button onClick={() => setEditMode('Add')}>+</button>
                             <button onClick={() => setEditMode('Remove')}>-</button>
                             <button>Manual</button>
                             { (editMode !== null) && <button onClick={() => setEditMode(null)}>X</button> }
-                        </div>
-                        <div>
-                        { (editMode === 'Add') && <div>Click to add a new tile</div> }
-                        { (editMode === 'Remove') && <div>Click to remove a tile</div> }
+                            { (editMode === 'Add') && <span>Click to add a new tile</span> }
+                            { (editMode === 'Remove') && <span>Click to remove a tile</span> }
                         </div>
                     </Route>
                     <Route exact path="/settings">

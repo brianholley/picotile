@@ -15,11 +15,11 @@ const TileField = props => {
       console.log(`${parent.clientWidth} x ${parent.clientHeight}`)
       setCanvasSize({width: parent.clientWidth, height: parent.clientHeight})
     }
-    const canvas = canvasRef.current  
+    const canvas = canvasRef.current
     var ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    renderTileField(canvas, props.field.tiles)
-  }, [props.field])
+    renderTileField(canvas, props.field.tiles, props.mode !== null)
+  }, [props.field, props.mode, canvasSize])
 
   let clickOnCanvas = (event) => {
     const canvas = canvasRef.current
@@ -28,8 +28,8 @@ const TileField = props => {
   }
   
   return (
-    <div ref={sizeRef} style={{ width: '100vh', height: '100vh' }}>
-      <div style={{display: 'flex', height: 'auto', minHeight: '100%', minWidth: '100%'}}>
+    <div ref={sizeRef} style={{ width: '100vh', height: '90vh' }}>
+      <div style={{display: 'flex', height: 'auto', minHeight: '100%', minWidth: '90%'}}>
         <canvas ref={canvasRef} width={canvasSize.width} height={canvasSize.height} onClick={clickOnCanvas}/>
       </div>
     </div>)
@@ -57,8 +57,7 @@ export default TileField
 //       /  \ 1  /
 //      / 0  \  /
 //     /------\/
-let renderTileField = (canvas, field) => {
-
+let renderTileField = (canvas, field, showIndices) => {
   for (let tile of field) {
     let pos = tilePosToCanvasPos(tile.pos)
     let orientation = (Math.PI / 2) + ((1 - tile.pos.z) * Math.PI)
@@ -67,7 +66,7 @@ let renderTileField = (canvas, field) => {
         renderControlTile(canvas, pos, orientation)
         break
       case 'light':
-        renderLightTile(canvas, pos, orientation, tile.color ?? "#fff")
+        renderLightTile(canvas, pos, orientation, tile.color ?? "#fff", showIndices ? tile.index : null)
         break
     }
   }
@@ -128,7 +127,7 @@ let renderTileGridLines = (canvas, color) => {
   }
 }
 
-let renderLightTile = (canvas, center, orientation, color) => {
+let renderLightTile = (canvas, center, orientation, color, index) => {
   let rad2 = rad - 5
 
   let theta = orientation
@@ -147,6 +146,17 @@ let renderLightTile = (canvas, center, orientation, color) => {
   ctx.lineTo(center.x + Math.cos(theta + 2 * Math.PI / 3) * rad2, center.y + Math.sin(theta + 2 * Math.PI / 3) * rad2)
   ctx.lineTo(center.x + Math.cos(theta + 4 * Math.PI / 3) * rad2, center.y + Math.sin(theta + 4 * Math.PI / 3) * rad2)
   ctx.fill()
+
+  if (index !== null) {
+    ctx.strokeStyle = '#000'
+    ctx.fillStyle = '#fff'
+    ctx.font = 'normal bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillText(index, center.x, center.y);
+    ctx.strokeText(index, center.x, center.y);
+  }
 }
 
 let renderControlTile = (canvas, center, orientation) => {
