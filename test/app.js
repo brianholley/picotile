@@ -15,6 +15,7 @@ var settings = {
   mode: 0
 }
 
+// TODO: Remove default tiles
 let tiles = {
   version: 1,
   maxTiles: 20,

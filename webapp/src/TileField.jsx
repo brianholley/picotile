@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import * as Api from './api'
 
 const TileField = props => {
 
@@ -11,8 +10,14 @@ const TileField = props => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     renderTileField(canvas, props.field.tiles)
   }, [props.field])
+
+  let clickOnCanvas = (event) => {
+    const canvas = canvasRef.current
+    const tilePos = canvasPosToTile({ x: event.clientX - canvas.offsetLeft, y: event.clientY - canvas.offsetTop })
+    props.onCanvasClick(tilePos)
+  }
   
-  return <canvas ref={canvasRef} width='300' height='600' {...props}/>
+  return <canvas ref={canvasRef} width='300' height='600' onClick={clickOnCanvas}/>
 }
 
 export default TileField
@@ -56,8 +61,6 @@ let renderTileField = (canvas, field) => {
 }
 
 let renderTileGridLines = (canvas, color) => {
-  let rad2 = rad - 5
-
   // TODO: Figure out bounds from canvasPosToTile once implemented
   var ctx = canvas.getContext('2d')
   for (let x=0; x < 10; x++) {
@@ -150,18 +153,37 @@ let renderControlTile = (canvas, center, orientation) => {
 // TODO: Insert more helpful geometry diagram
 let tilePosToCanvasPos = (tilePos) => {
   let base = rad * Math.cos(Math.PI / 6)
-  let h = rad * Math.sin(Math.PI / 6)
+  let h = Math.sin(Math.PI / 6)
 
   const x = rad + 2 * base * tilePos.x - base * tilePos.y + base * tilePos.z
-  const y = rad + (rad + h) * tilePos.y - (rad - h) * tilePos.z
+  const y = rad * (1 + (1 + h) * tilePos.y - (1 - h) * tilePos.z)
   //console.log(`${tilePos.x},${tilePos.y},${tilePos.z} => ${x}, ${y}`)
   return {x, y}
 }
 
-let canvasPosToTile = (pos) => {
-  return {
-    x: 0,
-    y: 0,
-    z: 0
+export const canvasPosToTile = (pos) => {
+  let base = rad * Math.cos(Math.PI / 6)
+  let h = Math.sin(Math.PI / 6)
+
+  const tilePosY0 = ((pos.y / rad) - 1 + (1 - h) * 0) / (1 + h)
+  const tilePosX0 = ((pos.x - rad) / base + tilePosY0 - 0) / 2
+  const tilePosY1 = ((pos.y / rad) - 1 + (1 - h) * 1) / (1 + h)
+  const tilePosX1 = ((pos.x - rad) / base + tilePosY1 - 1) / 2
+
+  const canvasPos0 = tilePosToCanvasPos({x: Math.round(tilePosX0), y: Math.round(tilePosY0), z: 0})
+  const dist0 = Math.sqrt(Math.pow(pos.x - canvasPos0.x, 2) + Math.pow(pos.y - canvasPos0.y, 2))
+  const canvasPos1 = tilePosToCanvasPos({x: Math.round(tilePosX1), y: Math.round(tilePosY1), z: 1})
+  const dist1 = Math.sqrt(Math.pow(pos.x - canvasPos1.x, 2) + Math.pow(pos.y - canvasPos1.y, 2))
+  
+  let x = Math.round(tilePosX0)
+  let y = Math.round(tilePosY0)
+  let z = 0
+  if (dist1 < dist0) {
+    x = Math.round(tilePosX1)
+    y = Math.round(tilePosY1)
+    z = 1
   }
+  
+  //console.log(`Map ${pos.x},${pos.y} => ${x},${y},${z}`)
+  return { x, y, z }
 }

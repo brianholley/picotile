@@ -33,13 +33,24 @@ export const getTiles = async () => {
     return await response.json();
 }
 
-export const addTile = async (x, y, z, type) => {
+export const addTile = async (index, x, y, z, type) => {
     var url = new URL(`${baseUrl()}/tiles/add`)
-    url.search = new URLSearchParams({x, y, z, type}).toString()
+    url.search = new URLSearchParams({index, x, y, z, type}).toString()
     const response = await fetch(url, {
       method: 'POST'
     })
     if (response.status !== 201) {
+        console.log("ERROR! " + response.status)
+    }
+}
+
+export const removeTile = async (index, x, y, z, type) => {
+    var url = new URL(`${baseUrl()}/tiles/remove`)
+    url.search = new URLSearchParams({index}).toString()
+    const response = await fetch(url, {
+      method: 'POST'
+    })
+    if (response.status !== 200) {
         console.log("ERROR! " + response.status)
     }
 }
