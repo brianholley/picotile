@@ -44,8 +44,8 @@ export const addTile = async (index, x, y, z, type) => {
     }
 }
 
-export const removeTile = async (index, x, y, z, type) => {
-    var url = new URL(`${baseUrl()}/tiles/remove`)
+export const removeTile = async (index) => {
+    var url = new URL(`${baseUrl()}/tiles/delete`)
     url.search = new URLSearchParams({index}).toString()
     const response = await fetch(url, {
       method: 'POST'

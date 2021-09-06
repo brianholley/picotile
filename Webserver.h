@@ -96,7 +96,8 @@ void setupHttpServer() {
     });
 
     webServer.on("/tiles/add", HTTP_POST, []() {
-        if (!webServer.hasArg("x") || 
+        if (!webServer.hasArg("index") || 
+            !webServer.hasArg("x") || 
             !webServer.hasArg("y") || 
             !webServer.hasArg("z") ||
             !webServer.hasArg("type")) {
@@ -109,6 +110,7 @@ void setupHttpServer() {
             return;
         }
 
+        settings.tiles[settings.tileCount].index = webServer.arg("index").toInt();
         settings.tiles[settings.tileCount].x = webServer.arg("x").toInt();
         settings.tiles[settings.tileCount].y = webServer.arg("y").toInt();
         settings.tiles[settings.tileCount].z = webServer.arg("z").toInt();
@@ -121,28 +123,22 @@ void setupHttpServer() {
     });
 
     webServer.on("/tiles/delete", HTTP_POST, []() {
-        if (!webServer.hasArg("x") || 
-            !webServer.hasArg("y") || 
-            !webServer.hasArg("z")) {
-            
+        if (!webServer.hasArg("index")) {
             webServer.send(400, "application/json", "{ error: \"missing paramter\" }");
             return;
         }
 
-        uint8_t x = webServer.arg("x").toInt();
-        uint8_t y = webServer.arg("y").toInt();
-        uint8_t z = webServer.arg("z").toInt();
+        uint8_t index = webServer.arg("index").toInt();
         bool found = false;
         for (int i=0; i < settings.tileCount; i++) {
             if (found) {
+                settings.tiles[i-1].index == settings.tiles[i].index - 1;
                 settings.tiles[i-1].x == settings.tiles[i].x;
                 settings.tiles[i-1].y == settings.tiles[i].y;
                 settings.tiles[i-1].z == settings.tiles[i].z;
                 settings.tiles[i-1].type == settings.tiles[i].type;
             }
-            if (settings.tiles[i].x == x &&
-                settings.tiles[i].y == y &&
-                settings.tiles[i].z == z) {
+            if (settings.tiles[i].index == index) {
                 found = true;
             }
         }
@@ -207,6 +203,8 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
    case WStype_CONNECTED: {
        IPAddress ip = webSocketsServer.remoteIP(num);
        Serial.printf("[%u] Connected Ip: %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
+
+       webSocketsServer.
        break;
      }
  }

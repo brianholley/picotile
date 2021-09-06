@@ -147,11 +147,9 @@ app.post('/tiles/add', (req, res) => {
 })
 
 app.post('/tiles/delete', (req, res) => {
-  let x = req.query.x
-  let y = req.query.y
-  let z = req.query.z
+  let index = req.query.index
   
-  tiles = tiles.filter((t) => t.pos.x !== x || t.pos.y !== y || t.pos.z !== z)
+  tiles = tiles.filter((t) => t.index !== index)
   res.statusCode = 200
   res.send(JSON.stringify(tiles))
 })
