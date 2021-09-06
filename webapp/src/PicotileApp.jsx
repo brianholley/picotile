@@ -60,7 +60,9 @@ let PicotileApp = props => {
                 Api.registerCallback('tileColors', message => {
                     let updatedTiles = { ...tiles }
                     for (var tile of message.tiles) {
-                        updatedTiles.tiles[tile.index].color = tile.color
+                        if (tile.index < updatedTiles.tiles.length) {
+                            updatedTiles.tiles[tile.index].color = tile.color
+                        }
                     }
                     setTiles(updatedTiles)
                 })

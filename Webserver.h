@@ -2,6 +2,8 @@
 #ifndef __PICOTILE_WEBSERVER__
 #define __PICOTILE_WEBSERVER__ 1
 
+#include "Common.h"
+
 #include <ESP8266WiFi.h> // https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WiFi
 #include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
 
@@ -16,11 +18,17 @@
 
 #include "Settings.h"
 
+namespace Webserver {
+
 WiFiManager wifiManager;
 ESP8266WebServer webServer(80);
 WebSocketsServer webSocketsServer(81);
 ESP8266HTTPUpdateServer httpUpdateServer;
 
+const uint16_t SendTileColorsInterval = 500;
+static uint16_t tick = 0;
+
+void sendTiles();
 
 String generateMDNSName() {
     // Generate a durable, reasonably unique name
@@ -221,6 +229,44 @@ void updateHttpServer() {
 
 void updateWebsocketServer() {
     webSocketsServer.loop();
+    tick += SleepInMsec;
+    if (tick > SendTileColorsInterval) {
+      tick = 0;
+      sendTiles();
+    }
+}
+
+void sendPatternChange(const char* patternName) {
+  String json = "{\"type\":\"pattern\", \"data\":\"" + String(patternName) + "\"}";
+  webSocketsServer.broadcastTXT(json);
+}
+
+String colorPartToHex(uint8_t c) {
+  return (c < 16 ? "0" : "") + String(c, HEX);
+}
+
+void sendTiles() {
+  String json = "{\"type\":\"tileColors\", \"tiles\":[";
+  uint16_t offset = 0;
+  for (uint8_t t = 0; t < MAX_TILES; t++) {
+    uint32_t r = 0;
+    uint32_t g = 0;
+    uint32_t b = 0;
+    for (uint8_t i=0; i < LEDS_PER_TILE; i++, offset++) {
+      r += leds[offset].r;
+      g += leds[offset].g;
+      b += leds[offset].b;
+    }
+    String color = "#" + colorPartToHex(r/LEDS_PER_TILE) + colorPartToHex(g/LEDS_PER_TILE) + colorPartToHex(b/LEDS_PER_TILE);
+    json += "{\"index\":" + String(t) + ", \"color\":\"" + color + "\"}";
+    if (t < MAX_TILES - 1) {
+      json += ",";
+    }
+  }
+  json += "]}";
+  webSocketsServer.broadcastTXT(json);
+}
+
 }
 
 #endif // ifndef __PICOTILE_WEBSERVER__

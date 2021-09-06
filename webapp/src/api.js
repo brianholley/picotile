@@ -1,8 +1,9 @@
-const API_PORT = 80
+const HTTP_PORT = 80
+const WS_PORT = 81
 const baseUrl = () => 
-    `${window.location.protocol}//${window.location.hostname}:${API_PORT}`
+    `${window.location.protocol}//${window.location.hostname}:${HTTP_PORT}`
 const wsBaseUrl = () => 
-    `ws://${window.location.hostname}:${API_PORT}`
+    `ws://${window.location.hostname}:${WS_PORT}`
 
 let webSocket
 let eventCallbacks = []

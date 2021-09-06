@@ -3,7 +3,8 @@ const express = require('express')
 const ws = require('ws')
 
 const app = express()
-const port = 80
+const httpPort = 80
+const wsPort = 81
 
 app.use(cors())
 
@@ -40,7 +41,8 @@ const patterns = [
   "Starburst",
 ]
 
-const wsServer = new ws.Server({ noServer: true })
+console.log(`Startup at ws://localhost:${wsPort}`)
+const wsServer = new ws.Server({ port: wsPort })
 wsServer.on('connection', socket => {
   console.log('client connected!')
   activeSockets.push(socket)
@@ -184,13 +186,6 @@ app.get('/', (req, res) => {
   res.send(JSON.stringify(response))
 })
 
-const server = app.listen(port, () => {
-  console.log(`Startup at http://localhost:${port}`)
+app.listen(httpPort, () => {
+  console.log(`Startup at http://localhost:${httpPort}`)
 })
-
-// Handle websocket connection upgrade requests and pass off to WS server
-server.on('upgrade', (request, socket, head) => {
-  wsServer.handleUpgrade(request, socket, head, socket => {
-    wsServer.emit('connection', socket, request);
-  });
-});

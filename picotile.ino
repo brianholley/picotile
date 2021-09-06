@@ -66,18 +66,18 @@ void setup() {
   setupLeds();
   
   Serial.println("connectToWifi: ");
-  connectToWifi();
+  Webserver::connectToWifi();
   Serial.println("setupHttpServer: ");
-  setupHttpServer();
+  Webserver::setupHttpServer();
   Serial.println("setupWebsocketServer: ");
-  setupWebsocketServer();
+  Webserver::setupWebsocketServer();
 }
 
 void loop() {
 
-  updateWifi();
-  updateHttpServer();
-  updateWebsocketServer();
+  Webserver::updateWifi();
+  Webserver::updateHttpServer();
+  Webserver::updateWebsocketServer();
 
   updateLeds();
 }
@@ -115,6 +115,7 @@ void updateLeds() {
       patterns[currentPattern].start();
 
       Serial.print("Switching to pattern: "); Serial.println(patterns[currentPattern].name);
+      Webserver::sendPatternChange(patterns[currentPattern].name);
     }
   }
   
