@@ -87,6 +87,7 @@ void setupLeds() {
 
   patternTime = random(MinTimeInPatternInMsec, MaxTimeInPatternInMsec);
   currentPattern = random(PatternCount);
+  Webserver::onPatternChange(patterns[currentPattern].name);
 
   patterns[currentPattern].start();
 }
@@ -115,7 +116,7 @@ void updateLeds() {
       patterns[currentPattern].start();
 
       Serial.print("Switching to pattern: "); Serial.println(patterns[currentPattern].name);
-      Webserver::sendPatternChange(patterns[currentPattern].name);
+      Webserver::onPatternChange(patterns[currentPattern].name);
     }
   }
   

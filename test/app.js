@@ -12,7 +12,7 @@ var settings = {
   onOff: true,
   brightness: 128,
   speed: 128,
-  mode: 0
+  mode: 'automatic'
 }
 
 // TODO: Remove default tiles
@@ -21,13 +21,13 @@ let tiles = {
   maxTiles: 20,
   tiles: [
     {type: 'control', pos: {x: 4, y: 5, z: 1}}, 
-    {type: 'light', index: 0, pos: {x: 4, y: 4, z: 0}},
-    {type: 'light', index: 0, pos: {x: 3, y: 4, z: 1}},
-    {type: 'light', index: 0, pos: {x: 3, y: 3, z: 0}},
-    {type: 'light', index: 0, pos: {x: 3, y: 3, z: 1}},
-    {type: 'light', index: 0, pos: {x: 3, y: 2, z: 0}},
-    {type: 'light', index: 0, pos: {x: 2, y: 2, z: 1}},
-    {type: 'light', index: 0, pos: {x: 2, y: 2, z: 0}},
+    {type: 'light', index: 0, pos: {x: 4, y: 4, z: 0}, color: '#b0b'},
+    {type: 'light', index: 1, pos: {x: 3, y: 4, z: 1}, color: '#4B0082'},
+    {type: 'light', index: 2, pos: {x: 3, y: 3, z: 0}, color: '#00c'},
+    {type: 'light', index: 3, pos: {x: 3, y: 3, z: 1}, color: '#0d0'},
+    {type: 'light', index: 4, pos: {x: 3, y: 2, z: 0}, color: '#dd0'},
+    {type: 'light', index: 5, pos: {x: 2, y: 2, z: 1}, color: '#d70'},
+    {type: 'light', index: 6, pos: {x: 2, y: 2, z: 0}, color: '#c00'},
   ]
 }
 
@@ -35,11 +35,48 @@ let hue = 0
 
 let activeSockets = []
 
+const modes = [
+  'automatic',
+  'pattern',
+  'manual'
+]
+
 const patterns = [
-  "Fire",
-  "Firefly",
-  "Rainbow",
-  "Starburst",
+  'fire',
+  'firefly',
+  'rainbow',
+  'starburst',
+]
+let currentPattern = 'fire'
+
+const onSetMode = event => {
+  if (event.mode in modes) {
+    settings.mode = event.mode
+  }
+}
+
+const onSetPattern = event => {
+  if (settings.mode === 'pattern') {
+    currentPattern = event.pattern
+  }
+}
+
+const onSetTile = event => {
+  if (settings.mode === 'manual') {
+    let tile = tiles.tiles.find(t => t.index === event.index)
+    if (tile !== null) {
+      tile.color = '#' + event.r.toString(16).padStart(2, '0') + event.g.toString(16).padStart(2, '0') + event.b.toString(16).padStart(2, '0')
+    }
+    else {
+      console.log(`Tile ${event.index} not found`)
+    }
+  }
+}
+
+const websocketClientEvents = [
+  { setMode: onSetMode },
+  { setPattern: onSetPattern },
+  { setTile: onSetTile },
 ]
 
 console.log(`Startup at ws://localhost:${wsPort}`)
@@ -48,7 +85,17 @@ wsServer.on('connection', socket => {
   console.log('client connected!')
   activeSockets.push(socket)
 
-  socket.on('message', message => console.log(message))
+  socket.on('message', message => {
+    console.log(message)
+
+    const event = JSON.parse(message)
+    if (event.type in websocketClientEvents.keys()) {
+      websocketClientEvents[event.type](event)
+    }
+    else {
+      console.log(`No handler found for event ${event.type}`)
+    }
+  })
   socket.on('close', socket => {
     console.log('client disconnected!')
     activeSockets = activeSockets.filter(s => s !== socket)
@@ -56,7 +103,7 @@ wsServer.on('connection', socket => {
 
   sendRandomPattern(socket)
   sendTileColors(socket)
-});
+})
 
 const isClientActive = (socket) => {
   return activeSockets.filter(s => s === socket).length > 0
@@ -67,10 +114,15 @@ let sendRandomPattern = (socket) => {
     return
   }
 
-  const index = Math.floor(Math.random() * patterns.length)
-  const message = { type: 'pattern', data: patterns[index] }
-  console.log(message)
-  socket.send(JSON.stringify(message))
+  if (settings.mode === 'automatic') {
+    currentPattern = patterns[Math.floor(Math.random() * patterns.length)]
+  }
+
+  if (settings.mode !== 'manual') {
+    const message = { type: 'pattern', data: currentPattern }
+    //console.log(message)
+    socket.send(JSON.stringify(message))
+  }
   setTimeout(() => {
     sendRandomPattern(socket)
   }, 10000)
@@ -81,15 +133,21 @@ let sendTileColors = (socket) => {
     return
   }
 
-  console.log(`sendTileColors ${hue}`)
   hue = (hue + 10) % 360
-  
-  let message = { type: 'tileColors', tiles: [] }
+  console.log(`sendTileColors ${hue}`)
+
   for (var i = 0; i < tiles.tiles.length; i++) {
     if (tiles.tiles[i].type === 'light') {
       const rgb = hue2rgb((hue + 10 * i) % 360)
       const color = '#' + rgb.r.toString(16).padStart(2, '0') + rgb.g.toString(16).padStart(2, '0') + rgb.b.toString(16).padStart(2, '0')
-      message.tiles.push({index: i, color})
+      tiles.tiles[i].color = color
+    }
+  }
+  
+  let message = { type: 'tileColors', tiles: [] }
+  for (var tile of tiles.tiles) {
+    if (tile.type === 'light') {
+      message.tiles.push({index: tile.index, color: tile.color})
     }
   }
   socket.send(JSON.stringify(message))
@@ -137,33 +195,40 @@ app.get('/tiles', (req, res) => {
 })
 
 app.post('/tiles/add', (req, res) => {
-  let x = req.query.x
-  let y = req.query.y
-  let z = req.query.z
+  let index = parseInt(req.query.index)
+  let x = parseInt(req.query.x)
+  let y = parseInt(req.query.y)
+  let z = parseInt(req.query.z)
   let type = req.query.type
-  tiles.push({pos: {x, y, z}, type})
+  tiles.tiles.push({index, pos: {x, y, z}, type})
   res.statusCode = 201
   res.send(JSON.stringify(tiles))
 })
 
 app.post('/tiles/delete', (req, res) => {
-  let index = req.query.index
-  
-  tiles = tiles.filter((t) => t.index !== index)
+  let index = parseInt(req.query.index)
+  let removed = tiles.tiles.filter((t) => t.index !== index)
+  console.log(`Delete tile ${index}, updated tile count ${removed.length}`)
+  tiles.tiles = removed
+  for (let t of tiles.tiles) {
+    if (t.index > index) {
+      t.index--
+    }
+  }
   res.statusCode = 200
   res.send(JSON.stringify(tiles))
 })
 
 app.post('/tiles/update', (req, res) => {
-  let x = req.query.x
-  let y = req.query.y
-  let z = req.query.z
-  let newX = req.query.newX
-  let newY = req.query.newY
-  let newZ = req.query.newZ
-  let newType = req.query.newType
+  let x = parseInt(req.query.x)
+  let y = parseInt(req.query.y)
+  let z = parseInt(req.query.z)
+  let newX = parseInt(req.query.newX)
+  let newY = parseInt(req.query.newY)
+  let newZ = parseInt(req.query.newZ)
+  let newType = parseInt(req.query.newType)
   
-  let tile = tiles.filter((t) => t.pos.x == x && t.pos.y == y && t.pos.z == z)
+  let tile = tiles.filter((t) => t.pos.x === x && t.pos.y === y && t.pos.z === z)
   tile.pos = {x: newX, y: newY, z: newZ }
   type.type = newType
   res.statusCode = 200
@@ -173,12 +238,12 @@ app.post('/tiles/update', (req, res) => {
 app.get('/', (req, res) => {
   let response = {
     routes: [
-      "GET /settings",
-      "GET /tiles",
-      "POST /settings",
-      "POST /tiles/add",
-      "POST /tiles/delete",
-      "POST /tiles/update"
+      'GET /settings',
+      'GET /tiles',
+      'POST /settings',
+      'POST /tiles/add',
+      'POST /tiles/delete',
+      'POST /tiles/update'
     ]
   }
   res.statusCode = 404

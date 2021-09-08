@@ -1,6 +1,12 @@
+// ------------------------------------------------------------
 // Webserver.h
+// 
+// HTTP and Websocket server implementation
+//
 #ifndef __PICOTILE_WEBSERVER__
 #define __PICOTILE_WEBSERVER__ 1
+
+#include <ArduinoJson.h>
 
 #include "Common.h"
 
@@ -25,10 +31,18 @@ ESP8266WebServer webServer(80);
 WebSocketsServer webSocketsServer(81);
 ESP8266HTTPUpdateServer httpUpdateServer;
 
+// Callbacks
+void (*FnSetMode)(uint8_t mode) = null;
+void (*FnSetPattern)(uint8_t pattern) = null;
+void (*FnSetTile)(uint8_t index, uint8_t r, uint8_t g, uint8_t b) = null;
+
 const uint16_t SendTileColorsInterval = 500;
 static uint16_t tick = 0;
 
+const char * currentPattern = null;
+
 void sendTiles();
+void sendPattern();
 
 String generateMDNSName() {
     // Generate a durable, reasonably unique name
@@ -105,7 +119,7 @@ void setupHttpServer() {
             webServer.send(400, "application/json", "{ error: \"missing paramter\" }");
             return;
         }
-        if (settings.tileCount + 1 == MAX_TILES) {            
+        if (settings.tileCount == MAX_TILES) {            
             webServer.send(400, "application/json", "{ error: \"max tile count reached\" }");
             return;
         }
@@ -116,6 +130,9 @@ void setupHttpServer() {
         settings.tiles[settings.tileCount].z = webServer.arg("z").toInt();
         settings.tiles[settings.tileCount].type = webServer.arg("type").toInt();
         settings.tileCount++;
+        if (settings.tiles[settings.tileCount].type == LIGHT_TILE) {
+          settings.lightTileCount++;
+        }
         saveSettings();
         
         String json = tilesToJson();
@@ -203,6 +220,38 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
         case WStype_CONNECTED: {
             IPAddress ip = webSocketsServer.remoteIP(num);
             Serial.printf("[%u] Connected Ip: %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
+
+            sendPattern();
+            sendTiles();
+            break;
+        }
+
+        case WStype_TEXT: {
+            DynamicJsonDocument message(1024);
+            deserializeJson(message, payload);
+            
+            const char * type = message["type"];
+            if (strcmp(type, "setMode") == 0) {
+                uint8_t mode = message["mode"];
+                if (FnSetMode) {
+                    FnSetMode(mode);
+                }
+            }
+            else if (strcmp(type, "setPattern") == 0) {
+                uint8_t pattern = message["pattern"];
+                if (FnSetPattern) {
+                    FnSetPattern(pattern);
+                }
+            }
+            else if (strcmp(type, "setTile") == 0) {
+                uint8_t index = message["index"];
+                uint8_t r = message["r"];
+                uint8_t g = message["g"];
+                uint8_t b = message["b"];
+                if (FnSetTile) {
+                    FnSetTile(index, r, g, b);
+                }
+            }
             break;
         }
     }
@@ -226,14 +275,20 @@ void updateHttpServer() {
 void updateWebsocketServer() {
     webSocketsServer.loop();
     tick += SleepInMsec;
+    
     if (tick > SendTileColorsInterval) {
       tick = 0;
       sendTiles();
     }
 }
 
-void sendPatternChange(const char* patternName) {
-  String json = "{\"type\":\"pattern\", \"data\":\"" + String(patternName) + "\"}";
+void onPatternChange(const char* patternName) {
+  currentPattern = patternName;
+  sendPattern();
+}
+
+void sendPattern() {
+  String json = "{\"type\":\"pattern\", \"data\":\"" + String(currentPattern) + "\"}";
   webSocketsServer.broadcastTXT(json);
 }
 

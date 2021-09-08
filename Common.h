@@ -7,6 +7,7 @@
 #include <FastLED.h>
 FASTLED_USING_NAMESPACE
 
+#define null NULL
 
 #define LEDS_PER_TILE 9
 #define MAX_TILES 7

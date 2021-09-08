@@ -9,6 +9,18 @@
 #define LIGHT_TILE      0
 #define CONTROL_TILE    1
 
+const char * LightTile = "light";
+const char * ControlTile = "control";
+
+#define MODE_AUTOMATIC  0
+#define MODE_SINGLE     1
+#define MODE_MANUAL     2
+
+const char * ModeAutomatic = "automatic";
+const char * ModeSingle = "single";
+const char * ModeManual = "manual";
+
+
 struct Tile {
     uint8_t index;
     uint8_t x, y, z;
@@ -21,6 +33,7 @@ struct Settings {
 
     // Tile layouts
     uint8_t tileCount;
+    uint8_t lightTileCount;
     Tile tiles[MAX_TILES];
 
     // Brightness
@@ -31,8 +44,6 @@ struct Settings {
 
     // Mode
     uint8_t mode;
-
-    // Palettes - TBD
 };
 
 Settings settings;
@@ -46,11 +57,15 @@ void loadSettings() {
 
     if (settings.version == 1) {
         settings.tileCount = EEPROM.read(offset++);
+        settings.lightTileCount = 0;
         for (uint8_t i=0; i < settings.tileCount; i++) {
             settings.tiles[i].x = EEPROM.read(offset++);
             settings.tiles[i].y = EEPROM.read(offset++);
             settings.tiles[i].z = EEPROM.read(offset++);
             settings.tiles[i].type = EEPROM.read(offset++);
+            if (settings.tiles[i].type == LIGHT_TILE) {
+                settings.lightTileCount++;
+            }
         }
     
         settings.brightness = EEPROM.read(offset++);
@@ -59,6 +74,7 @@ void loadSettings() {
     }
     else {
         settings.tileCount = 0;
+        settings.lightTileCount = 0;
         settings.brightness = 255;
         settings.speed = 255;
         settings.mode = 0;
@@ -107,8 +123,8 @@ String tilesToJson() {
             "\"pos\": {";
         json += 
             "\"x\":" + String(settings.tiles[i].x) +
-            "\"y\":" + String(settings.tiles[i].y) +
-            "\"z\":" + String(settings.tiles[i].z) +
+            ",\"y\":" + String(settings.tiles[i].y) +
+            ",\"z\":" + String(settings.tiles[i].z) +
             "}}";
         if (i < settings.tileCount - 1) {
             json += ",";

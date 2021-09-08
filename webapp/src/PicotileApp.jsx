@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     BrowserRouter as Router,
     Switch,
@@ -31,7 +31,7 @@ const defaultTileField = {
 const defaultSettings = {
     brightness: 255,
     speed: 0,
-    mode: 0
+    mode: 'automatic'
 }
 
 let PicotileApp = props => {
@@ -57,20 +57,25 @@ let PicotileApp = props => {
                 Api.registerCallback('pattern', message => {
                     setPattern(message.data)
                 })
-                Api.registerCallback('tileColors', message => {
-                    let updatedTiles = { ...tileField }
-                    for (let inTile of message.tiles) {
-                        const tile = updatedTiles.tiles.filter(t => t.index === inTile.index)
-                        if (tile.lenth > 0) {
-                            tile[0].color = tile.color
-                        }
-                    }
-                    setTileField(updatedTiles)
-                })
+                Api.registerCallback('tileColors', onUpdateTileColors)
             }
         }
         loadAsync()
+        return () => {/* TODO: Cleanup! */}
     }, [loaded, tileField, settings])
+
+    let onUpdateTileColors = message => {
+        setTileField(currentTileField => {
+            let updatedTiles = { ...currentTileField }
+            for (let inTile of message.tiles) {
+                const tile = updatedTiles.tiles.find(t => t.index === inTile.index)
+                if (tile) {
+                    tile.color = inTile.color
+                }
+            }
+            return updatedTiles
+        })
+    }
 
     let onChangeSetting = async (newSettings) => {
         let oldSettings = settings
@@ -84,7 +89,7 @@ let PicotileApp = props => {
         }
     }
 
-    let onCanvasClick = async (tilePos) => {
+    let onCanvasClick = (tilePos) => {
         let selected = tileField.tiles.filter(t => t.pos.x === tilePos.x && t.pos.y === tilePos.y && t.pos.z === tilePos.z)
         if (editMode === 'Add') {
             if (selected.length === 0) {
@@ -98,29 +103,57 @@ let PicotileApp = props => {
         }
     }
 
-    let onTileAdd = async (pos) => {
-        let nextIndex = tileField.tiles.reduce((index, tile) => tile.type == 'light' ? Math.max(index, tile.index) : index, 0) + 1
-        let tile = {type: 'light', index: nextIndex, pos: {x: pos.x, y: pos.y, z: pos.z}}
+    let onTileAdd = (pos) => {
+        let nextIndex = tileField.tiles.reduce((index, tile) => tile.type == 'light' ? Math.max(index, tile.index) : index, -1) + 1
+        const r = Math.floor(Math.random() * 256)
+        const g = Math.floor(Math.random() * 256)
+        const b = Math.floor(Math.random() * 256)
+        const color = r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0')
+
+        let tile = {type: 'light', index: nextIndex, pos: {x: pos.x, y: pos.y, z: pos.z}, color}
         let updatedTileField = {...tileField}
         updatedTileField.tiles.push(tile)
         setTileField(updatedTileField)
 
-        await Api.addTile(tile.index, pos.x, pos.y, pos.z, 'light')
+        Api.addTile(tile.index, pos.x, pos.y, pos.z, 'light')
     }
 
-    let onTileRemove = async (tile) => {
-        let updatedTileField = {
-            ...tileField,
-            tiles: tileField.tiles.filter(t => t.index !== tile.index)
-        }
-        for (var t of updatedTileField.tiles) {
+    let onTileRemove = (tile) => {
+        let updatedTileField = {...tileField}
+        updatedTileField.tiles = tileField.tiles.filter(t => t.index !== tile.index)
+        for (let t of updatedTileField.tiles) {
             if (t.index > tile.index) {
                 t.index--
             }
         }
         setTileField(updatedTileField)
 
-        await Api.removeTile(tile.index)
+        Api.removeTile(tile.index)
+    }
+
+    let onSwitchLedMode = async () => {
+        let updatedSettings = null
+        if (settings.mode === 'automatic') {
+            updatedSettings = {
+                ...settings,
+                mode: 'pattern'
+            }
+        }
+        else if (settings.mode === 'pattern') {
+            updatedSettings = {
+                ...settings,
+                mode: 'manual'
+            }
+        } 
+        else {
+            updatedSettings = {
+                ...settings,
+                mode: 'automatic'
+            }
+        }
+        setSettings(updatedSettings)
+
+        await Api.postSettings(updatedSettings)
     }
 
     return (
@@ -134,7 +167,7 @@ let PicotileApp = props => {
                         <div>
                             <button onClick={() => setEditMode('Add')}>+</button>
                             <button onClick={() => setEditMode('Remove')}>-</button>
-                            <button>Manual</button>
+                            <button onClick={onSwitchLedMode}>{settings.mode}</button>
                             { (editMode !== null) && <button onClick={() => setEditMode(null)}>X</button> }
                             { (editMode === 'Add') && <span>Click to add a new tile</span> }
                             { (editMode === 'Remove') && <span>Click to remove a tile</span> }
