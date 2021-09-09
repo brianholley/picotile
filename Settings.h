@@ -22,7 +22,6 @@ const char * ModeAutomatic = "automatic";
 const char * ModeSingle = "single";
 const char * ModeManual = "manual";
 
-
 struct Tile {
     int8_t index;
     uint8_t x, y, z;
@@ -56,10 +55,11 @@ void loadSettings() {
     uint16_t offset = 0;
     settings.version = EEPROM.read(offset++);
 
-    if (settings.version == 1) {
+    if (settings.version == CURRENT_VERSION) {
         settings.tileCount = EEPROM.read(offset++);
         TileCount = 0;
         for (uint8_t i=0; i < settings.tileCount; i++) {
+            settings.tiles[i].index = EEPROM.read(offset++);
             settings.tiles[i].x = EEPROM.read(offset++);
             settings.tiles[i].y = EEPROM.read(offset++);
             settings.tiles[i].z = EEPROM.read(offset++);
@@ -74,6 +74,7 @@ void loadSettings() {
         settings.mode = EEPROM.read(offset++);
     }
     else {
+        settings.version = CURRENT_VERSION;
         settings.tileCount = 1;
         TileCount = 0;
         settings.brightness = 255;
@@ -89,6 +90,7 @@ void saveSettings() {
 
     EEPROM.write(offset++, settings.tileCount);
     for (uint8_t i=0; i < settings.tileCount; i++) {
+        EEPROM.write(offset++, settings.tiles[i].index);
         EEPROM.write(offset++, settings.tiles[i].x);
         EEPROM.write(offset++, settings.tiles[i].y);
         EEPROM.write(offset++, settings.tiles[i].z);
