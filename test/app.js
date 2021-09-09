@@ -33,8 +33,6 @@ let tiles = {
 
 let hue = 0
 
-let activeSockets = []
-
 const modes = [
   'automatic',
   'pattern',
@@ -83,7 +81,6 @@ console.log(`Startup at ws://localhost:${wsPort}`)
 const wsServer = new ws.Server({ port: wsPort })
 wsServer.on('connection', socket => {
   console.log('client connected!')
-  activeSockets.push(socket)
 
   socket.on('message', message => {
     console.log(message)
@@ -96,24 +93,19 @@ wsServer.on('connection', socket => {
       console.log(`No handler found for event ${event.type}`)
     }
   })
+
+  const patternTimer = setInterval(() => sendRandomPattern(socket), 10000)
+  const tileColorsTimer = setInterval(() => sendTileColors(socket), 30)
+
   socket.on('close', socket => {
     console.log('client disconnected!')
-    activeSockets = activeSockets.filter(s => s !== socket)
-  })
 
-  sendRandomPattern(socket)
-  sendTileColors(socket)
+    clearInteral(patternTimer)
+    clearInteral(tileColorsTimer)
+  })
 })
 
-const isClientActive = (socket) => {
-  return activeSockets.filter(s => s === socket).length > 0
-}
-
 let sendRandomPattern = (socket) => {
-  if (!isClientActive(socket)) {
-    return
-  }
-
   if (settings.mode === 'automatic') {
     currentPattern = patterns[Math.floor(Math.random() * patterns.length)]
   }
@@ -123,16 +115,9 @@ let sendRandomPattern = (socket) => {
     //console.log(message)
     socket.send(JSON.stringify(message))
   }
-  setTimeout(() => {
-    sendRandomPattern(socket)
-  }, 10000)
 }
 
 let sendTileColors = (socket) => {
-  if (!isClientActive(socket)) {
-    return
-  }
-
   hue = (hue + 10) % 360
   console.log(`sendTileColors ${hue}`)
 
@@ -151,9 +136,6 @@ let sendTileColors = (socket) => {
     }
   }
   socket.send(JSON.stringify(message))
-  setTimeout(() => {
-    sendTileColors(socket)
-  }, 2000)
 }
 
 // Extremely hacky function to map hue to rgb for easy testing
