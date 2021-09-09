@@ -36,9 +36,6 @@ void (*FnSetMode)(uint8_t mode) = null;
 void (*FnSetPattern)(uint8_t pattern) = null;
 void (*FnSetTile)(uint8_t index, uint8_t r, uint8_t g, uint8_t b) = null;
 
-const uint16_t SendTileColorsInterval = 500;
-static uint16_t tick = 0;
-
 const char * currentPattern = null;
 
 void sendTiles();
@@ -282,12 +279,7 @@ void updateHttpServer() {
 
 void updateWebsocketServer() {
     webSocketsServer.loop();
-//    tick += SleepInMsec;
-//    
-//    if (tick > SendTileColorsInterval) {
-//      tick = 0;
       sendTiles();
-//    }
 }
 
 void onPatternChange(const char* patternName) {
