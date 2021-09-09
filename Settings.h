@@ -9,6 +9,8 @@
 #define LIGHT_TILE      0
 #define CONTROL_TILE    1
 
+extern uint8_t TileCount;
+
 const char * LightTile = "light";
 const char * ControlTile = "control";
 
@@ -22,7 +24,7 @@ const char * ModeManual = "manual";
 
 
 struct Tile {
-    uint8_t index;
+    int8_t index;
     uint8_t x, y, z;
     uint8_t type;   // LIGHT_TILE/CONTROL_TILE
 };
@@ -33,7 +35,6 @@ struct Settings {
 
     // Tile layouts
     uint8_t tileCount;
-    uint8_t lightTileCount;
     Tile tiles[MAX_TILES];
 
     // Brightness
@@ -57,14 +58,14 @@ void loadSettings() {
 
     if (settings.version == 1) {
         settings.tileCount = EEPROM.read(offset++);
-        settings.lightTileCount = 0;
+        TileCount = 0;
         for (uint8_t i=0; i < settings.tileCount; i++) {
             settings.tiles[i].x = EEPROM.read(offset++);
             settings.tiles[i].y = EEPROM.read(offset++);
             settings.tiles[i].z = EEPROM.read(offset++);
             settings.tiles[i].type = EEPROM.read(offset++);
             if (settings.tiles[i].type == LIGHT_TILE) {
-                settings.lightTileCount++;
+                TileCount++;
             }
         }
     
@@ -73,11 +74,12 @@ void loadSettings() {
         settings.mode = EEPROM.read(offset++);
     }
     else {
-        settings.tileCount = 0;
-        settings.lightTileCount = 0;
+        settings.tileCount = 1;
+        TileCount = 0;
         settings.brightness = 255;
         settings.speed = 255;
         settings.mode = 0;
+        settings.tiles[0] = {-1, 4, 5, 1, CONTROL_TILE};
     }
 }
 
@@ -119,8 +121,9 @@ String tilesToJson() {
         "\"tiles\":[";
     for (uint8_t i = 0; i < settings.tileCount; i++) {
         json += "{";
-        json += "\"type\":\"" + String(settings.tiles[i].type) + "\"," +
-            "\"pos\": {";
+        json += "\"index\":" + String(settings.tiles[i].index) + ",";
+        json += "\"type\":\"" + String(settings.tiles[i].type == LIGHT_TILE ? LightTile : ControlTile) + "\",";
+        json += "\"pos\": {";
         json += 
             "\"x\":" + String(settings.tiles[i].x) +
             ",\"y\":" + String(settings.tiles[i].y) +

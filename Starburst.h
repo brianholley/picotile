@@ -11,7 +11,7 @@ namespace Starburst {
 uint8_t hue[MAX_TILES];
 uint8_t value[MAX_TILES];
 
-const uint32_t TimeToNewStartInMsec = 3000 / MAX_TILES;
+const uint32_t TimeToNewStartInMsec = 3000 / TileCount;
 uint32_t tick = 0;
 
 uint8_t lastIndex = MAX_TILES;
@@ -29,7 +29,7 @@ void start() {
 
 void update() {
     tick += SleepInMsec;
-    for (uint8_t t=0; t < MAX_TILES; t++) {
+    for (uint8_t t=0; t < TileCount; t++) {
         if (value[t] > 0) {
             value[t] -= 1;
         }
@@ -37,9 +37,9 @@ void update() {
     if (tick > TimeToNewStartInMsec) {
         tick = 0;
 
-        uint8_t index = random(MAX_TILES);
+        uint8_t index = random(TileCount);
         if (index == lastIndex) {
-            index = random(MAX_TILES);
+            index = random(TileCount);
         }
         hue[index] = random(256);
         if (abs(hue[index] - lastHue) < 10) {

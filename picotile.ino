@@ -36,10 +36,10 @@ struct Pattern {
 };
 
 const Pattern patterns[] = {
-  { "Fire", Fire::start, Fire::update },
-  { "Firefly", Firefly::start, Firefly::update },
-  { "Rainbow", Rainbow::start, Rainbow::update },
-  { "Starburst", Starburst::start, Starburst::update },
+  { "Fire",       Fire::start,      Fire::update },
+  { "Firefly",    Firefly::start,   Firefly::update },
+  { "Rainbow",    Rainbow::start,   Rainbow::update },
+  { "Starburst",  Starburst::start, Starburst::update },
 };
 const uint8_t PatternCount = sizeof(patterns) / sizeof(patterns[0]);
 

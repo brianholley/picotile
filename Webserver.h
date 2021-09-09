@@ -128,11 +128,19 @@ void setupHttpServer() {
         settings.tiles[settings.tileCount].x = webServer.arg("x").toInt();
         settings.tiles[settings.tileCount].y = webServer.arg("y").toInt();
         settings.tiles[settings.tileCount].z = webServer.arg("z").toInt();
-        settings.tiles[settings.tileCount].type = webServer.arg("type").toInt();
-        settings.tileCount++;
-        if (settings.tiles[settings.tileCount].type == LIGHT_TILE) {
-          settings.lightTileCount++;
+        const String type = webServer.arg("type");
+        if (type == LightTile) {
+          settings.tiles[settings.tileCount].type = LIGHT_TILE;
+          TileCount++;
         }
+        else if (type == ControlTile) {
+          settings.tiles[settings.tileCount].type = CONTROL_TILE;
+        }
+        else {
+            webServer.send(400, "application/json", "{ error: \"invalid tile type\" }");
+            return;
+        }
+        settings.tileCount++;
         saveSettings();
         
         String json = tilesToJson();
@@ -274,12 +282,12 @@ void updateHttpServer() {
 
 void updateWebsocketServer() {
     webSocketsServer.loop();
-    tick += SleepInMsec;
-    
-    if (tick > SendTileColorsInterval) {
-      tick = 0;
+//    tick += SleepInMsec;
+//    
+//    if (tick > SendTileColorsInterval) {
+//      tick = 0;
       sendTiles();
-    }
+//    }
 }
 
 void onPatternChange(const char* patternName) {

@@ -126,7 +126,7 @@ bool updateFirefly(Firefly& ff) {
 
 void resetFirefly(Firefly& ff) {
   
-  ff.tile = random(MAX_TILES);
+  ff.tile = random(TileCount);
   ff.currentColor = nightColor;
   ff.tick = 0;
   ff.duration = random(MinFireflyDurationInMsec, MaxFireflyDurationInMsec);
