@@ -4,6 +4,7 @@
 
 #include "Fire.h"
 #include "Firefly.h"
+#include "Manual.h"
 #include "Rainbow.h"
 #include "Settings.h"
 #include "Starburst.h"
@@ -93,8 +94,14 @@ void setupLeds() {
 }
 
 void updateLeds() {
-  tick += SleepInMsec;
-  if (state == InPattern) {
+  if (settings.mode == MODE_AUTOMATIC || state == InTransition) {
+    tick += SleepInMsec;
+  }
+
+  if (settings.mode == MODE_MANUAL) {
+    Manual::update();
+  }
+  else if (state == InPattern) {
     if (tick > patternTime) {
       state = InTransition;
       tick = 0;
@@ -121,4 +128,10 @@ void updateLeds() {
   }
   
   delay(SleepInMsec);
+}
+
+void OnSetTile(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
+    if (settings.mode == MODE_MANUAL) {
+        Manual::OnSetTile(index, r, g, b);
+    }
 }

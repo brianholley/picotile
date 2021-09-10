@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { HuePicker  } from 'react-color';
 import {
     BrowserRouter as Router,
     Switch,
@@ -41,6 +42,7 @@ let PicotileApp = props => {
     const [tileField, setTileField] = useState(defaultTileField)
     const [settings, setSettings] = useState(defaultSettings)
     const [editMode, setEditMode] = useState(null)
+    const [manualColor, setManualColor] = useState('#0000ff')
 
     useEffect(() => {
         let loadAsync = async () => {
@@ -101,6 +103,19 @@ let PicotileApp = props => {
                 onTileRemove(selected[0])
             }
         }
+        if (settings.mode === 'manual') {
+            if (selected.length > 0) {
+                Api.sendSetTile(selected[0].index, manualColor)
+                setTileField(currentTileField => {
+                    let updatedTiles = { ...currentTileField }
+                    const tile = updatedTiles.tiles.find(t => t.index === selected[0].index)
+                    if (tile) {
+                        tile.color = manualColor
+                    }
+                    return updatedTiles
+                })
+            }
+        }
     }
 
     let onTileAdd = (pos) => {
@@ -136,10 +151,10 @@ let PicotileApp = props => {
         if (settings.mode === 'automatic') {
             updatedSettings = {
                 ...settings,
-                mode: 'pattern'
+                mode: 'single'
             }
         }
-        else if (settings.mode === 'pattern') {
+        else if (settings.mode === 'single') {
             updatedSettings = {
                 ...settings,
                 mode: 'manual'
@@ -156,6 +171,10 @@ let PicotileApp = props => {
         await Api.postSettings(updatedSettings)
     }
 
+    let onColorChangeComplete = (color, event) => {
+        setManualColor(color.hex)
+      }
+
     return (
         <Router>
             <div className="App">
@@ -171,6 +190,9 @@ let PicotileApp = props => {
                             { (editMode !== null) && <button onClick={() => setEditMode(null)}>X</button> }
                             { (editMode === 'Add') && <span>Click to add a new tile</span> }
                             { (editMode === 'Remove') && <span>Click to remove a tile</span> }
+                        </div>
+                        <div>
+                            { (settings.mode == 'manual') && <HuePicker color={manualColor} onChangeComplete={onColorChangeComplete} /> }
                         </div>
                     </Route>
                     <Route exact path="/settings">

@@ -7,15 +7,18 @@
 namespace Manual {
 
 void start() {
-    render();
 }
 
 void update() {
-    render();
+    FastLED.show();
 }
 
-void render() {
-    FastLED.show();
+
+void OnSetTile(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
+    uint16_t offset = index * LEDS_PER_TILE;
+    for (auto i = 0; i < LEDS_PER_TILE; i++, offset++) {
+        leds[offset] = CRGB(r, g, b);
+    }
 }
 
 }

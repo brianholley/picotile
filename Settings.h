@@ -105,12 +105,27 @@ void saveSettings() {
 }
 
 String settingsToJson() {
+    String mode;
+    switch (settings.mode) {
+        case MODE_AUTOMATIC:
+            mode = ModeAutomatic;
+            break;
+        case MODE_SINGLE:
+            mode = ModeSingle;
+            break;
+        case MODE_MANUAL:
+            mode = ModeManual;
+            break;
+        default:
+            mode = ModeAutomatic;
+            break;
+    }
     String json = "{";
     json += 
         "\"version\":" + String(settings.version) + "," +
         "\"brightness\":" + String(settings.brightness) + "," +
         "\"speed\":" + String(settings.speed) + "," +
-        "\"mode\":" + String(settings.mode) +
+        "\"mode\":\"" + mode + "\"" + 
         "}";
     return json;
 }

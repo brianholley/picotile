@@ -35,7 +35,7 @@ let hue = 0
 
 const modes = [
   'automatic',
-  'pattern',
+  'single',
   'manual'
 ]
 
@@ -54,7 +54,7 @@ const onSetMode = event => {
 }
 
 const onSetPattern = event => {
-  if (settings.mode === 'pattern') {
+  if (settings.mode === 'single') {
     currentPattern = event.pattern
   }
 }
@@ -63,7 +63,7 @@ const onSetTile = event => {
   if (settings.mode === 'manual') {
     let tile = tiles.tiles.find(t => t.index === event.index)
     if (tile !== null) {
-      tile.color = '#' + event.r.toString(16).padStart(2, '0') + event.g.toString(16).padStart(2, '0') + event.b.toString(16).padStart(2, '0')
+      tile.color = event.color
     }
     else {
       console.log(`Tile ${event.index} not found`)
@@ -71,11 +71,11 @@ const onSetTile = event => {
   }
 }
 
-const websocketClientEvents = [
-  { setMode: onSetMode },
-  { setPattern: onSetPattern },
-  { setTile: onSetTile },
-]
+const websocketClientEvents = {
+  setMode: onSetMode,
+  setPattern: onSetPattern,
+  setTile: onSetTile,
+}
 
 console.log(`Startup at ws://localhost:${wsPort}`)
 const wsServer = new ws.Server({ port: wsPort })
@@ -83,10 +83,8 @@ wsServer.on('connection', socket => {
   console.log('client connected!')
 
   socket.on('message', message => {
-    console.log(message)
-
     const event = JSON.parse(message)
-    if (event.type in websocketClientEvents.keys()) {
+    if (event.type in websocketClientEvents) {
       websocketClientEvents[event.type](event)
     }
     else {
@@ -100,8 +98,8 @@ wsServer.on('connection', socket => {
   socket.on('close', socket => {
     console.log('client disconnected!')
 
-    clearInteral(patternTimer)
-    clearInteral(tileColorsTimer)
+    clearInterval(patternTimer)
+    clearInterval(tileColorsTimer)
   })
 })
 
@@ -118,14 +116,17 @@ let sendRandomPattern = (socket) => {
 }
 
 let sendTileColors = (socket) => {
-  hue = (hue + 10) % 360
-  console.log(`sendTileColors ${hue}`)
+  
+  if (settings.mode !== 'manual') {
+    hue = (hue + 2) % 360
+    //console.log(`sendTileColors ${hue}`)
 
-  for (var i = 0; i < tiles.tiles.length; i++) {
-    if (tiles.tiles[i].type === 'light') {
-      const rgb = hue2rgb((hue + 10 * i) % 360)
-      const color = '#' + rgb.r.toString(16).padStart(2, '0') + rgb.g.toString(16).padStart(2, '0') + rgb.b.toString(16).padStart(2, '0')
-      tiles.tiles[i].color = color
+    for (var i = 0; i < tiles.tiles.length; i++) {
+      if (tiles.tiles[i].type === 'light') {
+        const rgb = hue2rgb((hue + 10 * i) % 360)
+        const color = '#' + rgb.r.toString(16).padStart(2, '0') + rgb.g.toString(16).padStart(2, '0') + rgb.b.toString(16).padStart(2, '0')
+        tiles.tiles[i].color = color
+      }
     }
   }
   

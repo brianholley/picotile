@@ -62,8 +62,8 @@ export const connect = () => {
     webSocket.onmessage = (event) => {
         let message = JSON.parse(event.data);
         
-        console.log(`Received message of type ${message.type}`)
-        console.log(message)
+        // console.log(`Received message of type ${message.type}`)
+        // console.log(message)
         if (message.type in eventCallbacks) {
             eventCallbacks[message.type](message)
         }
@@ -76,4 +76,13 @@ export const registerCallback = (eventType, callback) => {
 
 export const unregisterCallback = (eventType) => {
     eventCallbacks[eventType] = null
+}
+
+export const sendSetTile = (index, color) => {
+    const message = {
+        type: 'setTile',
+        index,
+        color,
+    }
+    webSocket.send(JSON.stringify(message))
 }

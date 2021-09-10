@@ -24,6 +24,8 @@
 
 #include "Settings.h"
 
+void OnSetTile(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
+
 namespace Webserver {
 
 WiFiManager wifiManager;
@@ -32,9 +34,15 @@ WebSocketsServer webSocketsServer(81);
 ESP8266HTTPUpdateServer httpUpdateServer;
 
 // Callbacks
-void (*FnSetMode)(uint8_t mode) = null;
-void (*FnSetPattern)(uint8_t pattern) = null;
-void (*FnSetTile)(uint8_t index, uint8_t r, uint8_t g, uint8_t b) = null;
+typedef void (*FnSetMode)(uint8_t mode);
+typedef void (*FnSetPattern)(uint8_t pattern);
+typedef void (*FnSetTile)(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
+
+void OnSetMode(uint8_t mode);
+
+FnSetMode fnSetMode = OnSetMode;
+FnSetPattern fnSetPattern = null;
+FnSetTile fnSetTile = OnSetTile;
 
 const char * currentPattern = null;
 
@@ -93,7 +101,16 @@ void setupHttpServer() {
             settings.speed = webServer.arg("speed").toInt();
         }
         if (webServer.hasArg("mode")) {
-            settings.mode = webServer.arg("mode").toInt();
+            const String mode = webServer.arg("mode");
+            if (mode == ModeAutomatic) {
+                settings.mode = MODE_AUTOMATIC;
+            }
+            else if (mode == ModeSingle) {
+                settings.mode = MODE_SINGLE;
+            }
+            else if (mode == ModeManual) {
+                    settings.mode = MODE_MANUAL;
+            }
         }
         saveSettings();
 
@@ -214,6 +231,25 @@ void setupHttpServer() {
     Serial.println("HTTP web server started");
 }
 
+uint8_t toIntHex(const String& str) {
+    uint8_t n = 0;
+    for (auto i = 0; i < 2; i++) {
+        n = n * 16;
+        
+        char c = str.charAt(i);
+        if (c >= '0' && c <= '9') {
+          n += (uint8_t)c - (uint8_t)'0';
+        }
+        else if (c >= 'a' && c <= 'f') {
+          n += (uint8_t)c - (uint8_t)'a' + 10;
+        }
+        else if (c >= 'A' && c <= 'F') {
+          n += (uint8_t)c - (uint8_t)'A' + 10;
+        }
+    }
+    return n;
+}
+
 void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
     switch (type) {
         case WStype_DISCONNECTED: {
@@ -238,23 +274,25 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
             const char * type = message["type"];
             if (strcmp(type, "setMode") == 0) {
                 uint8_t mode = message["mode"];
-                if (FnSetMode) {
-                    FnSetMode(mode);
+                if (fnSetMode) {
+                    fnSetMode(mode);
                 }
             }
             else if (strcmp(type, "setPattern") == 0) {
                 uint8_t pattern = message["pattern"];
-                if (FnSetPattern) {
-                    FnSetPattern(pattern);
+                if (fnSetPattern) {
+                    fnSetPattern(pattern);
                 }
             }
             else if (strcmp(type, "setTile") == 0) {
                 uint8_t index = message["index"];
-                uint8_t r = message["r"];
-                uint8_t g = message["g"];
-                uint8_t b = message["b"];
-                if (FnSetTile) {
-                    FnSetTile(index, r, g, b);
+                const String color = message["color"];
+                uint8_t r = toIntHex(color.substring(1, 3));
+                uint8_t g = toIntHex(color.substring(3, 5));
+                uint8_t b = toIntHex(color.substring(5, 7));
+                if (fnSetTile) {
+                    Serial.printf("setTile index=%d color=%d,%d,%d\n", index, r, g, b);
+                    fnSetTile(index, r, g, b);
                 }
             }
             break;
@@ -317,6 +355,12 @@ void sendTiles() {
   json += "]}";
   webSocketsServer.broadcastTXT(json);
 }
+
+void OnSetMode(uint8_t mode) {
+    settings.mode = mode;
+    saveSettings();
+}
+
 
 }
 
