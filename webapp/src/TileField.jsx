@@ -1,25 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 // This is the size of the tiles (radius of the bounding circle for the equilateral triangle)
-const rad = 80
+let rad = 80
 
 const TileField = props => {
 
-  const sizeRef = useRef(null)
   const canvasRef = useRef(null)
-  const [canvasSize, setCanvasSize] = useState({width: 300, height: 600})
-
+  
   useEffect(() => {
-    const parent = sizeRef.current
-    if (parent.clientWidth !== canvasSize.width || parent.clientHeight !== canvasSize.height) {
-      console.log(`${parent.clientWidth} x ${parent.clientHeight}`)
-      setCanvasSize({width: parent.clientWidth, height: parent.clientHeight})
-    }
     const canvas = canvasRef.current
     var ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     renderTileField(canvas, props.field.tiles, props.mode !== null)
-  }, [props.field, props.mode, canvasSize])
+
+    rad = (props.width >= 800 ? 80 : 50)
+  }, [props.width, props.height, props.field, props.mode])
 
   let clickOnCanvas = (event) => {
     const canvas = canvasRef.current
@@ -27,12 +22,7 @@ const TileField = props => {
     props.onCanvasClick(tilePos)
   }
   
-  return (
-    <div ref={sizeRef} style={{ width: '100vh', height: '90vh' }}>
-      <div style={{display: 'flex', height: 'auto', minHeight: '100%', minWidth: '90%'}}>
-        <canvas ref={canvasRef} width={canvasSize.width} height={canvasSize.height} onClick={clickOnCanvas}/>
-      </div>
-    </div>)
+  return <canvas ref={canvasRef} width={props.width} height={props.height} onClick={clickOnCanvas}/>
 }
 
 export default TileField

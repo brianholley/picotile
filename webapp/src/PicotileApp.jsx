@@ -173,26 +173,36 @@ let PicotileApp = props => {
 
     let onColorChangeComplete = (color, event) => {
         setManualColor(color.hex)
-      }
+    }
+
+    const windowWidth = document.documentElement.clientWidth
+    const windowHeight = document.documentElement.clientHeight
+
+    const menuHeight = 61
+    const patternHeight = 24
+    const editControlsHeight = 46
+    const canvasHeight = windowHeight - menuHeight - patternHeight - editControlsHeight;
 
     return (
         <Router>
             <div className="App">
-                <Menu />
+                <Menu height={menuHeight} />
                 <Switch>
                     <Route exact path="/">
-                        <div style={{textAlign: 'center'}}>Current pattern: {pattern}</div>
-                        <TileField field={tileField} mode={editMode} onCanvasClick={onCanvasClick} />
-                        <div>
-                            <button onClick={() => setEditMode('Add')}>+</button>
-                            <button onClick={() => setEditMode('Remove')}>-</button>
-                            <button onClick={onSwitchLedMode}>{settings.mode}</button>
-                            { (editMode !== null) && <button onClick={() => setEditMode(null)}>X</button> }
-                            { (editMode === 'Add') && <span>Click to add a new tile</span> }
-                            { (editMode === 'Remove') && <span>Click to remove a tile</span> }
-                        </div>
-                        <div>
-                            { (settings.mode == 'manual') && <HuePicker color={manualColor} onChangeComplete={onColorChangeComplete} /> }
+                        <div style={{minHeight: patternHeight + 'px', textAlign: 'center'}}>Current pattern: {pattern}</div>
+                        <TileField field={tileField} mode={editMode} onCanvasClick={onCanvasClick} width={windowWidth} height={canvasHeight} />
+                        <div style={{minHeight: editControlsHeight + 'px'}}>
+                            <div>
+                                <button onClick={() => setEditMode('Add')}>+</button>
+                                <button onClick={() => setEditMode('Remove')}>-</button>
+                                <button onClick={onSwitchLedMode}>{settings.mode}</button>
+                                { (editMode !== null) && <button onClick={() => setEditMode(null)}>X</button> }
+                                { (editMode === 'Add') && <span>Click to add a new tile</span> }
+                                { (editMode === 'Remove') && <span>Click to remove a tile</span> }
+                            </div>
+                            <div>
+                                { (settings.mode == 'manual') && <HuePicker color={manualColor} onChangeComplete={onColorChangeComplete} /> }
+                            </div>
                         </div>
                     </Route>
                     <Route exact path="/settings">

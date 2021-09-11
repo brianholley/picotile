@@ -8,7 +8,7 @@ import './styles.css'
 
 let Menu = props => {
   return (
-    <nav className="nav nav-pills">
+    <nav className="nav nav-pills" style={{minHeight: props.height + 'px'}}>
       <Link className="navbar-brand" to="/">Picotile</Link>
       <Switch>
         <Route exact path="/">
