@@ -11,10 +11,10 @@ const TileField = props => {
     const canvas = canvasRef.current
     var ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    renderTileField(canvas, props.field.tiles, props.mode !== null)
+    renderTileField(canvas, props.field.tiles, props.showIndices)
 
     rad = (props.width >= 800 ? 80 : 50)
-  }, [props.width, props.height, props.field, props.mode])
+  }, [props.width, props.height, props.field, props.showIndices])
 
   let clickOnCanvas = (event) => {
     const canvas = canvasRef.current

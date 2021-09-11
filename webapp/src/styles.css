@@ -1,3 +1,7 @@
+.App {
+  display:block;
+}
+
 nav {
   padding: 10px;
   border-bottom: 1px solid #777;
@@ -5,6 +9,10 @@ nav {
 
 .navbar-brand {
   padding-left: 10px;
+}
+
+canvas {
+  display: block;
 }
 
 #settings {

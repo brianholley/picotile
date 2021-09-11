@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { HuePicker  } from 'react-color';
 import {
     BrowserRouter as Router,
@@ -8,7 +8,9 @@ import {
   
 import './styles.css';
 
+import EditControls from './EditControls'
 import Menu from './Menu'
+import PatternControls from './PatternControls'
 import Settings from './Settings'
 import TileField from './TileField'
 
@@ -37,17 +39,17 @@ const defaultSettings = {
 
 let PicotileApp = props => {
 
-    const [loaded, setLoaded] = useState(false)
-    const [pattern, setPattern] = useState('Pattern')
+    const loaded = useRef(false)
+    const [pattern, setPattern] = useState('pattern')
     const [tileField, setTileField] = useState(defaultTileField)
     const [settings, setSettings] = useState(defaultSettings)
-    const [editMode, setEditMode] = useState(null)
+    const [editMode, setEditMode] = useState(false)
     const [manualColor, setManualColor] = useState('#0000ff')
 
     useEffect(() => {
         let loadAsync = async () => {
-            if (!loaded) {
-                setLoaded(true)
+            if (!loaded.current) {
+                loaded.current = true
 
                 let tileQuery = await Api.getTiles();
                 setTileField(tileQuery)
@@ -93,13 +95,11 @@ let PicotileApp = props => {
 
     let onCanvasClick = (tilePos) => {
         let selected = tileField.tiles.filter(t => t.pos.x === tilePos.x && t.pos.y === tilePos.y && t.pos.z === tilePos.z)
-        if (editMode === 'Add') {
+        if (editMode) {
             if (selected.length === 0) {
                 onTileAdd(tilePos)
             }
-        }
-        else if (editMode === 'Remove') {
-            if (selected.length > 0) {
+            else {
                 onTileRemove(selected[0])
             }
         }
@@ -179,8 +179,8 @@ let PicotileApp = props => {
     const windowHeight = document.documentElement.clientHeight
 
     const menuHeight = 61
-    const patternHeight = 24
-    const editControlsHeight = 46
+    const patternHeight = 38
+    const editControlsHeight = 38 + (settings.mode === 'manual' ? 16 : 0)
     const canvasHeight = windowHeight - menuHeight - patternHeight - editControlsHeight;
 
     return (
@@ -189,21 +189,9 @@ let PicotileApp = props => {
                 <Menu height={menuHeight} />
                 <Switch>
                     <Route exact path="/">
-                        <div style={{minHeight: patternHeight + 'px', textAlign: 'center'}}>Current pattern: {pattern}</div>
-                        <TileField field={tileField} mode={editMode} onCanvasClick={onCanvasClick} width={windowWidth} height={canvasHeight} />
-                        <div style={{minHeight: editControlsHeight + 'px'}}>
-                            <div>
-                                <button onClick={() => setEditMode('Add')}>+</button>
-                                <button onClick={() => setEditMode('Remove')}>-</button>
-                                <button onClick={onSwitchLedMode}>{settings.mode}</button>
-                                { (editMode !== null) && <button onClick={() => setEditMode(null)}>X</button> }
-                                { (editMode === 'Add') && <span>Click to add a new tile</span> }
-                                { (editMode === 'Remove') && <span>Click to remove a tile</span> }
-                            </div>
-                            <div>
-                                { (settings.mode == 'manual') && <HuePicker color={manualColor} onChangeComplete={onColorChangeComplete} /> }
-                            </div>
-                        </div>
+                        <PatternControls mode={settings.mode} onSwitchLedMode={onSwitchLedMode} pattern={pattern} height={patternHeight} />
+                        <TileField field={tileField} showIndices={editMode} onCanvasClick={onCanvasClick} width={windowWidth} height={canvasHeight} />
+                        <EditControls editMode={editMode} setEditMode={setEditMode} mode={settings.mode} manualColor={manualColor} onColorChangeComplete={onColorChangeComplete} height={editControlsHeight} />
                     </Route>
                     <Route exact path="/settings">
                         <Settings settings={settings} onChangeSetting={onChangeSetting} />
