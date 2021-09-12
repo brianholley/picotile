@@ -4,7 +4,7 @@ import './styles.css'
 
 let Settings = props => {
     let { onChangeSetting, settings } = props
-    let { onOff, brightness, speed, mode } = settings
+    let { onOff, brightness, speed } = settings
     
     let onChangeOnOff = (e) => {
         settings = {

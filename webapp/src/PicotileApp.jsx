@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { HuePicker  } from 'react-color';
 import {
     BrowserRouter as Router,
     Switch,
@@ -119,7 +118,7 @@ let PicotileApp = props => {
     }
 
     let onTileAdd = (pos) => {
-        let nextIndex = tileField.tiles.reduce((index, tile) => tile.type == 'light' ? Math.max(index, tile.index) : index, -1) + 1
+        let nextIndex = tileField.tiles.reduce((index, tile) => tile.type === 'light' ? Math.max(index, tile.index) : index, -1) + 1
         const r = Math.floor(Math.random() * 256)
         const g = Math.floor(Math.random() * 256)
         const b = Math.floor(Math.random() * 256)

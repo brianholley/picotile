@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 // This is the size of the tiles (radius of the bounding circle for the equilateral triangle)
 let rad = 80
@@ -56,12 +56,14 @@ let renderTileField = (canvas, field, showIndices) => {
         renderControlTile(canvas, pos, orientation)
         break
       case 'light':
-        renderLightTile(canvas, pos, orientation, tile.color ?? "#fff", showIndices ? tile.index : null)
+        renderLightTile(canvas, pos, orientation, tile.color ?? "#ffffff", showIndices ? tile.index : null)
         break
+      default:
+        console.log(`Unknown tile type ${tile.type}`)
     }
   }
 
-  renderTileGridLines(canvas, "#ddd")
+  renderTileGridLines(canvas, "#dddddd")
 }
 
 let renderTileGridLines = (canvas, color) => {

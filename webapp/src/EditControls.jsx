@@ -8,7 +8,7 @@ let EditControls = props => {
         <div style={{minHeight: props.height + 'px'}} className='container-fluid'>
             <div className='row'>
                 <div className='col' style={{textAlign: 'center'}}>
-                    { (props.mode == 'manual' && !props.editMode) && <HuePicker color={props.manualColor} onChangeComplete={props.onColorChangeComplete} /> }
+                    { (props.mode === 'manual' && !props.editMode) && <HuePicker color={props.manualColor} onChangeComplete={props.onColorChangeComplete} /> }
                 </div>
             </div>
             <div className='row'>
