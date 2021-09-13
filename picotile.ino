@@ -37,10 +37,10 @@ struct Pattern {
 };
 
 const Pattern patterns[] = {
-  { "Fire",       Fire::start,      Fire::update },
-  { "Firefly",    Firefly::start,   Firefly::update },
-  { "Rainbow",    Rainbow::start,   Rainbow::update },
-  { "Starburst",  Starburst::start, Starburst::update },
+  { "fire",       Fire::start,      Fire::update },
+  { "firefly",    Firefly::start,   Firefly::update },
+  { "rainbow",    Rainbow::start,   Rainbow::update },
+  { "starburst",  Starburst::start, Starburst::update },
 };
 const uint8_t PatternCount = sizeof(patterns) / sizeof(patterns[0]);
 
@@ -133,5 +133,21 @@ void updateLeds() {
 void OnSetTile(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
     if (settings.mode == MODE_MANUAL) {
         Manual::OnSetTile(index, r, g, b);
+    }
+}
+
+
+void OnSetPattern(const String& pattern) {
+    Serial.print("OnSetPattern: "); Serial.println(pattern);
+    if (settings.mode == MODE_SINGLE) {
+        Serial.println("Changing patterns");
+        for (auto i = 0; i < PatternCount; i++) {
+            if (pattern == patterns[i].name) {
+                currentPattern = i;
+                patterns[currentPattern].start();
+                tick = 0;
+                break;
+            }
+        }
     }
 }

@@ -57,10 +57,15 @@ export const removeTile = async (index) => {
 
 export const connect = () => {
     console.log(`Connecting to WS ${wsBaseUrl()}`)
-    webSocket = new WebSocket(wsBaseUrl());
+    webSocket = new WebSocket(wsBaseUrl())
+
+    webSocket.onclose = (closeEvent) => {
+        console.log(`Websocket is disconnected - beginning reconnect`)
+        connect()
+    }
 
     webSocket.onmessage = (event) => {
-        let message = JSON.parse(event.data);
+        let message = JSON.parse(event.data)
         
         // console.log(`Received message of type ${message.type}`)
         // console.log(message)
@@ -83,6 +88,14 @@ export const sendSetTile = (index, color) => {
         type: 'setTile',
         index,
         color,
+    }
+    webSocket.send(JSON.stringify(message))
+}
+
+export const sendSetPattern = (pattern) => {
+    const message = {
+        type: 'setPattern',
+        pattern,
     }
     webSocket.send(JSON.stringify(message))
 }

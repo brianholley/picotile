@@ -95,6 +95,9 @@ wsServer.on('connection', socket => {
   const patternTimer = setInterval(() => sendRandomPattern(socket), 10000)
   const tileColorsTimer = setInterval(() => sendTileColors(socket), 30)
 
+  sendRandomPattern(socket)
+  sendTileColors(socket)
+
   socket.on('close', socket => {
     console.log('client disconnected!')
 

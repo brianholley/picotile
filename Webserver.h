@@ -25,6 +25,7 @@
 #include "Settings.h"
 
 void OnSetTile(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
+void OnSetPattern(const String& pattern);
 
 namespace Webserver {
 
@@ -35,13 +36,13 @@ ESP8266HTTPUpdateServer httpUpdateServer;
 
 // Callbacks
 typedef void (*FnSetMode)(uint8_t mode);
-typedef void (*FnSetPattern)(uint8_t pattern);
+typedef void (*FnSetPattern)(const String& pattern);
 typedef void (*FnSetTile)(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
 
 void OnSetMode(uint8_t mode);
 
 FnSetMode fnSetMode = OnSetMode;
-FnSetPattern fnSetPattern = null;
+FnSetPattern fnSetPattern = OnSetPattern;
 FnSetTile fnSetTile = OnSetTile;
 
 const char * currentPattern = null;
@@ -279,7 +280,7 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
                 }
             }
             else if (strcmp(type, "setPattern") == 0) {
-                uint8_t pattern = message["pattern"];
+                String pattern = message["pattern"];
                 if (fnSetPattern) {
                     fnSetPattern(pattern);
                 }
