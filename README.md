@@ -17,13 +17,20 @@ Planned features:
 - Palette switching
 
 Arduino dependencies:
+- [ESP8266 board](https://github.com/esp8266/Arduino)
 - [FastLED](https://github.com/FastLED/FastLED)
-- [IRremoteESP8266](https://github.com/sebastienwarin/IRremoteESP8266)
+- [WiFiManager](https://github.com/tzapu/WiFiManager)
 - [Arduino WebSockets](https://github.com/Links2004/arduinoWebSockets)
 
 Debugging the web app:
+1. `cd webapp`
 1. `npm install`
-1. `npm start`
+1. `npm run start`
+
+Publishing the web app to the ESP8266
+1. `cd webapp`
+1. `npm run build`
+1. In the Arduino IDE: Tools | ESP8266 Sketch Data Upload
 
 Running on the Arduino:
 1. Open `picotile.ino`
