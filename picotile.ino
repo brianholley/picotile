@@ -2,9 +2,11 @@
 
 #define DATA_PIN 6
 
+#include "Fade.h"
 #include "Fire.h"
 #include "Firefly.h"
 #include "Manual.h"
+#include "Pulse.h"
 #include "Rainbow.h"
 #include "Settings.h"
 #include "Starburst.h"
@@ -41,6 +43,8 @@ const Pattern patterns[] = {
   { "firefly",    Firefly::start,   Firefly::update },
   { "rainbow",    Rainbow::start,   Rainbow::update },
   { "starburst",  Starburst::start, Starburst::update },
+  { "pulse",      Pulse::start,     Pulse::update },
+  { "fade",       Fade::start,      Fade::update }
 };
 const uint8_t PatternCount = sizeof(patterns) / sizeof(patterns[0]);
 

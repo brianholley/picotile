@@ -3,7 +3,7 @@ import * as Patterns from './Patterns'
 
 let PatternControls = props => {
     const currentPattern = Patterns.getPatternById(props.pattern)
-    const name = currentPattern ? currentPattern.name : ''
+    const name = currentPattern ? currentPattern.name : props.pattern
 
     const navButtonClass = 'btn btn-secondary' + (props.mode === 'single' ? '' : 'disabled')
 

@@ -44,6 +44,8 @@ const patterns = [
   'firefly',
   'rainbow',
   'starburst',
+  'pulse',
+  'fade',
 ]
 let currentPattern = 'fire'
 

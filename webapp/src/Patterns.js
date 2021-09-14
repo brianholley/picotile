@@ -4,6 +4,8 @@ const PatternList = [
   { id: 'firefly', name: 'Firefly' },
   { id: 'rainbow', name: 'Rainbow' },
   { id: 'starburst', name: 'Starburst' },
+  { id: 'pulse', name: 'Pulse' },
+  { id: 'fade', name: 'Fade' },
 ]
 
 export const getPatternById = (patternId) => PatternList.find(p => p.id === patternId)
