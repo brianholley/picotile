@@ -7,11 +7,11 @@ import {
   
 import './styles.css';
 
+import * as Api from './api'
+import ConnectionStatus from './ConnectionStatus';
 import Live from './Live'
 import Menu from './Menu'
 import Settings from './Settings'
-
-import * as Api from './api'
 
 const defaultSettings = {
     onOff: true,
@@ -23,6 +23,7 @@ const defaultSettings = {
 let PicotileApp = props => {
 
     const loaded = useRef(false)
+    const [connected, setConnected] = useState(null)
     const [settings, setSettings] = useState(defaultSettings)
 
     useEffect(() => {
@@ -30,9 +31,14 @@ let PicotileApp = props => {
             if (!loaded.current) {
                 loaded.current = true
 
-                let settingsQuery = await Api.getSettings()
-                setSettings(settingsQuery)
-
+                try {
+                    let settingsQuery = await Api.getSettings()
+                    setSettings(settingsQuery)
+                } catch { }
+                
+                Api.registerConnectionCallback((state) => {
+                    setConnected(state)
+                })
                 Api.connect()
             }
         }
@@ -70,6 +76,7 @@ let PicotileApp = props => {
     return (
         <Router>
             <div className="App">
+                <ConnectionStatus state={connected} height={menuHeight} />
                 <Menu height={menuHeight} />
                 <Switch>
                     <Route exact path="/">

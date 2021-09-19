@@ -18,3 +18,10 @@ canvas {
 #settings {
   margin: 8pt;
 }
+
+.connectionStatus {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-size: 20pt;
+}

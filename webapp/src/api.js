@@ -5,8 +5,11 @@ const baseUrl = () =>
 const wsBaseUrl = () => 
     `ws://${window.location.hostname}:${WS_PORT}`
 
+const maxReconnectAttempts = 1
+
 let webSocket
 let eventCallbacks = []
+let connectionCallback
 
 export const getSettings = async () => {
     var url = new URL(`${baseUrl()}/settings`)
@@ -55,13 +58,55 @@ export const removeTile = async (index) => {
     }
 }
 
+export const state = () => {
+    switch (webSocket?.readyState) {
+        case WebSocket.OPEN:
+            return 'connected'
+        case WebSocket.CONNECTING:
+            return 'connecting'
+        case WebSocket.CLOSED:
+        case WebSocket.CLOSING:
+        default:
+            return 'disconnected'
+    }
+}
+
+let reconnectAttemptsLeft = maxReconnectAttempts
+
 export const connect = () => {
     console.log(`Connecting to WS ${wsBaseUrl()}`)
     webSocket = new WebSocket(wsBaseUrl())
 
-    webSocket.onclose = (closeEvent) => {
-        console.log(`Websocket is disconnected - beginning reconnect`)
-        connect()
+    if (connectionCallback) {
+        connectionCallback(state())
+    }
+
+    webSocket.onopen = (_openEvent) => {
+        console.log('WS connected')
+        if (connectionCallback) {
+            connectionCallback(state())
+        }
+        reconnectAttemptsLeft = maxReconnectAttempts
+    }
+
+    webSocket.onerror = (_errorEvent) => {
+        console.log('WS error')
+        if (connectionCallback) {
+            connectionCallback(state())
+        }
+    }
+
+    webSocket.onclose = (_closeEvent) => {
+        console.log(`WS disconnected`)
+        if (connectionCallback) {
+            connectionCallback(state())
+        }
+
+        if (reconnectAttemptsLeft > 0) {
+            reconnectAttemptsLeft--
+            console.log(`Reconnecting. Attempts left: ${reconnectAttemptsLeft}`)
+            connect()
+        }
     }
 
     webSocket.onmessage = (event) => {
@@ -73,6 +118,10 @@ export const connect = () => {
             eventCallbacks[message.type](message)
         }
     };
+}
+
+export const registerConnectionCallback = (callback) => {
+    connectionCallback = callback
 }
 
 export const registerCallback = (eventType, callback) => {
