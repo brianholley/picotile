@@ -36,6 +36,14 @@ let Settings = props => {
         }
     }
 
+    let onChangeMode = (e) => {
+        settings = {
+            ...settings,
+            mode: e.target.value
+        }
+        onChangeSetting(settings)
+    }
+
     // let onChangeSpeed = (e) => {
     //     settings = {
     //         ...settings,
@@ -109,7 +117,7 @@ let Settings = props => {
                     <div className="form-group mb-3 row">
                         <label className="col-sm-2 control-label">Mode</label>
                         <div className="col-sm-10">
-                            <select className="form-select" value={mode}>
+                            <select className="form-select" value={mode} onChange={onChangeMode}>
                                 <option value="automatic">Automatic</option>
                                 <option value="single">Single pattern</option>
                                 <option value="manual">Manual</option>
