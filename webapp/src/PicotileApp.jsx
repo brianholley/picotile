@@ -14,8 +14,9 @@ import Settings from './Settings'
 import * as Api from './api'
 
 const defaultSettings = {
-    brightness: 255,
-    speed: 0,
+    onOff: true,
+    brightness: 128,
+    speed: 128,
     mode: 'automatic'
 }
 
