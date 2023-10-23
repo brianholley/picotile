@@ -3,6 +3,7 @@
 #define __PICOTILE_SETTINGS__ 1
 
 #include <EEPROM.h>
+#include "Common.h"
 
 #define CURRENT_VERSION 1
 
@@ -14,6 +15,8 @@ extern uint8_t TileCount;
 const char * LightTile = "light";
 const char * ControlTile = "control";
 
+// Modes
+// See README.md for mode descriptions
 #define MODE_AUTOMATIC  0
 #define MODE_SINGLE     1
 #define MODE_MANUAL     2
@@ -29,7 +32,7 @@ struct Tile {
 };
 
 struct Settings {
-    // Version
+    // Version - defined as CURRENT_VERSION
     uint8_t version;
 
     // Tile layouts
@@ -42,46 +45,58 @@ struct Settings {
     // Speed
     uint8_t speed;
 
-    // Mode
+    // Mode - defined with mode definition identifiers
     uint8_t mode;
 };
 
 Settings settings;
 
-// TODO: data validation
+void initializeSettings() {
+    Serial.println("Initializing new settings");
+    settings.version = CURRENT_VERSION;
+    settings.tileCount = 1;
+    TileCount = 0;
+    settings.brightness = 255;
+    settings.speed = 255;
+    settings.mode = 0;
+    settings.tiles[0] = {-1, 4, 5, 1, CONTROL_TILE};
+}
+
+// TODO: improved data validation
 void loadSettings() {
     EEPROM.begin(512);
 
     uint16_t offset = 0;
     settings.version = EEPROM.read(offset++);
 
-    if (settings.version == CURRENT_VERSION) {
-        settings.tileCount = EEPROM.read(offset++);
-        TileCount = 0;
-        for (uint8_t i=0; i < settings.tileCount; i++) {
-            settings.tiles[i].index = EEPROM.read(offset++);
-            settings.tiles[i].x = EEPROM.read(offset++);
-            settings.tiles[i].y = EEPROM.read(offset++);
-            settings.tiles[i].z = EEPROM.read(offset++);
-            settings.tiles[i].type = EEPROM.read(offset++);
-            if (settings.tiles[i].type == LIGHT_TILE) {
-                TileCount++;
-            }
+    if (settings.version != CURRENT_VERSION) {
+        // TODO: Upgrade from previous settings version once needed
+        initializeSettings();
+        return;
+    }
+
+    settings.tileCount = EEPROM.read(offset++);
+
+    if (settings.tileCount >= MAX_TILES) {
+        initializeSettings();
+        return;
+    }
+
+    TileCount = 0;
+    for (uint8_t i=0; i < settings.tileCount; i++) {
+        settings.tiles[i].index = EEPROM.read(offset++);
+        settings.tiles[i].x = EEPROM.read(offset++);
+        settings.tiles[i].y = EEPROM.read(offset++);
+        settings.tiles[i].z = EEPROM.read(offset++);
+        settings.tiles[i].type = EEPROM.read(offset++);
+        if (settings.tiles[i].type == LIGHT_TILE) {
+            TileCount++;
         }
-    
-        settings.brightness = EEPROM.read(offset++);
-        settings.speed = EEPROM.read(offset++);
-        settings.mode = EEPROM.read(offset++);
     }
-    else {
-        settings.version = CURRENT_VERSION;
-        settings.tileCount = 1;
-        TileCount = 0;
-        settings.brightness = 255;
-        settings.speed = 255;
-        settings.mode = 0;
-        settings.tiles[0] = {-1, 4, 5, 1, CONTROL_TILE};
-    }
+
+    settings.brightness = EEPROM.read(offset++);
+    settings.speed = EEPROM.read(offset++);
+    settings.mode = EEPROM.read(offset++);
 }
 
 void saveSettings() {

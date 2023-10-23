@@ -24,14 +24,17 @@
 
 #include "Settings.h"
 
+const uint8_t HttpPort = 80;
+const uint8_t WebsocketPort = 81;
+
 void OnSetTile(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
 void OnSetPattern(const String& pattern);
 
 namespace Webserver {
 
 WiFiManager wifiManager;
-ESP8266WebServer webServer(80);
-WebSocketsServer webSocketsServer(81);
+ESP8266WebServer webServer(HttpPort);
+WebSocketsServer webSocketsServer(WebsocketPort);
 ESP8266HTTPUpdateServer httpUpdateServer;
 
 // Callbacks
@@ -301,10 +304,10 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
     }
 }
 
-void setupWebsocketServer() {  
-   webSocketsServer.begin();
-   webSocketsServer.onEvent(onWebSocketEvent);
-   Serial.println("WS server started");
+void setupWebsocketServer() {
+    webSocketsServer.begin();
+    webSocketsServer.onEvent(onWebSocketEvent);
+    Serial.println("WS server started");
 }
 
 void updateWifi() {
@@ -318,7 +321,7 @@ void updateHttpServer() {
 
 void updateWebsocketServer() {
     webSocketsServer.loop();
-      sendTiles();
+    sendTiles();
 }
 
 void onPatternChange(const char* patternName) {
